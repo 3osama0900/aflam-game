@@ -69,6 +69,26 @@
       justify-content: center;
       font-weight: 900;
       border: 2px solid var(--accent);
+      cursor: pointer;
+    }
+
+    .top-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .admin-badge {
+      background: linear-gradient(135deg, #8b5cf6, #6d28d9);
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-weight: 800;
+      font-size: 0.85rem;
+      cursor: pointer;
+      display: none;
+      align-items: center;
+      gap: 4px;
+      box-shadow: 0 4px 12px rgba(139, 92, 246, 0.35);
     }
 
     .ticket-badge {
@@ -163,7 +183,7 @@
       border: 1px solid rgba(255,255,255,0.15);
       background: rgba(0,0,0,0.3);
       color: #fff;
-      font-size: 1.1rem;
+      font-size: 1.05rem;
       text-align: center;
       font-weight: 700;
       margin-bottom: 12px;
@@ -283,6 +303,45 @@
       margin-top: 10px;
     }
 
+    /* إحصائيات الأدمن */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .stat-box {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 14px;
+      padding: 12px;
+      text-align: center;
+    }
+
+    .stat-num {
+      font-size: 1.5rem;
+      font-weight: 900;
+      color: var(--accent);
+    }
+
+    .stat-label {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+    }
+
+    .user-row {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 12px;
+      padding: 10px 12px;
+      margin-bottom: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+    }
+
     .modal-overlay {
       position: fixed;
       inset: 0;
@@ -332,19 +391,26 @@
 </head>
 <body>
 
+  <!-- الشريط العلوي -->
   <div class="top-bar">
     <div class="user-info">
-      <div class="avatar" id="userAvatar">🎬</div>
+      <div class="avatar" id="userAvatar" onclick="handleAvatarSecretTap()">🎬</div>
       <span id="userNameDisplay">جاري التحميل...</span>
     </div>
-    <div class="ticket-badge" onclick="openStoreModal()">
-      <span>🎟️</span>
-      <span id="userTicketsDisplay">2</span>
-      <span>+</span>
+    <div class="top-actions">
+      <div class="admin-badge" id="adminTopBtn" onclick="openAdminDashboard()">
+        <span>👑</span>
+        <span>الأدمن</span>
+      </div>
+      <div class="ticket-badge" onclick="openStoreModal()">
+        <span>🎟️</span>
+        <span id="userTicketsDisplay">2</span>
+        <span>+</span>
+      </div>
     </div>
   </div>
 
-  <!-- 1. Home Screen -->
+  <!-- 1. الشاشة الرئيسية -->
   <div class="screen active" id="homeScreen">
     <div class="hero-title">
       <h1>🍿 السهرة السينمائية</h1>
@@ -377,7 +443,7 @@
     </div>
   </div>
 
-  <!-- 2. Setup Room Screen -->
+  <!-- 2. شاشة إعدادات الغرفة -->
   <div class="screen" id="setupRoomScreen">
     <div class="card">
       <h3>🌍 اختار نوع الأفلام والدراما:</h3>
@@ -406,7 +472,7 @@
     </div>
   </div>
 
-  <!-- 3. Lobby Waiting Screen -->
+  <!-- 3. شاشة انتظار اللاعبين -->
   <div class="screen" id="lobbyScreen">
     <div class="card" style="text-align: center;">
       <p style="color: var(--text-muted);">رقم الغرفة:</p>
@@ -429,7 +495,7 @@
     </p>
   </div>
 
-  <!-- 4. Game Arena Screen -->
+  <!-- 4. شاشة اللعب والجرس اللحظي -->
   <div class="screen" id="gameScreen">
     <div class="scoreboard" id="liveScoreboard"></div>
 
@@ -455,7 +521,7 @@
     <div class="options-grid" id="optionsContainer" style="display: none;"></div>
   </div>
 
-  <!-- 5. Podium Screen -->
+  <!-- 5. شاشة النتيجة النهائية -->
   <div class="screen" id="resultScreen">
     <div class="card" style="text-align: center;">
       <h1 style="color: var(--accent); margin-bottom: 12px;">🏆 نجوم السهرة!</h1>
@@ -464,7 +530,52 @@
     </div>
   </div>
 
-  <!-- Store Modal -->
+  <!-- 6. شاشة داش بورد الأدمن (Admin Dashboard) -->
+  <div class="screen" id="adminScreen">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+      <h2 style="color: var(--accent);">👑 لوحة تحكم الأدمن</h2>
+      <button class="btn btn-outline" style="width: auto; padding: 6px 14px; margin: 0;" onclick="showScreen('homeScreen')">رجوع</button>
+    </div>
+
+    <!-- كروت الإحصائيات -->
+    <div class="stats-grid">
+      <div class="stat-box">
+        <div class="stat-num" id="statActiveToday">0</div>
+        <div class="stat-label">لعبوا النهاردة 👥</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-num" id="statRoomsToday">0</div>
+        <div class="stat-label">غرف اتعملت النهاردة 🎬</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-num" id="statLiveRooms">0</div>
+        <div class="stat-label">غرف شغالة دلوقتي 🔥</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-num" id="statTotalUsers">0</div>
+        <div class="stat-label">إجمالي المسجلين 🌍</div>
+      </div>
+    </div>
+
+    <!-- طلبات الشحن المعلقة (فودافون كاش / إنستا باي) -->
+    <div class="card">
+      <h3 style="margin-bottom: 10px; color: var(--accent);">🔔 طلبات شحن بانتظار التفعيل:</h3>
+      <div id="adminPendingOrdersList" style="font-size: 0.85rem; color: var(--text-muted);">لا توجد طلبات معلقة حالياً</div>
+    </div>
+
+    <!-- شحن تذاكر وإدارة اللاعبين -->
+    <div class="card">
+      <h3 style="margin-bottom: 10px;">🎟️ شحن تذاكر لأي لاعب:</h3>
+      <input type="text" id="adminUserSearchInput" class="input-field" style="font-size: 0.9rem; margin-bottom: 8px;" placeholder="ابحث باسم اللاعب أو اليوزر أو الـ ID..." oninput="filterAdminUsers()" />
+      <div style="display: flex; gap: 8px; margin-bottom: 12px;">
+        <input type="number" id="adminTicketAmountInput" class="input-field" style="margin: 0; flex: 1; font-size: 0.95rem;" value="5" placeholder="عدد التذاكر" />
+        <span style="display: flex; align-items: center; font-size: 0.85rem; color: var(--text-muted);">تذكرة عند الضغط</span>
+      </div>
+      <div id="adminUsersList" style="max-height: 320px; overflow-y: auto;"></div>
+    </div>
+  </div>
+
+  <!-- نافذة متجر شحن التذاكر -->
   <div class="modal-overlay" id="storeModal">
     <div class="modal-content">
       <h3 style="margin-bottom: 12px; text-align: center;">🎟️ متجر تذاكر السهرة</h3>
@@ -479,14 +590,14 @@
       <label style="font-size: 0.85rem; color: var(--text-muted); display: block; margin-bottom: 8px;">2. اختار طريقة الدفع:</label>
 
       <div class="pay-method-card" onclick="toggleInstaPayForm()">
-        <div style="font-weight: 800; font-size: 1rem;">🇪🇬 إنستا باي (InstaPay) أو محفظة كاش</div>
-        <span class="tag-sub">⚡ الأسهل داخل مصر • يستغرق 3 دقائق للتأكد من التحويل</span>
+        <div style="font-weight: 800; font-size: 1rem;">🇪🇬 إنستا باي (InstaPay) أو فودافون كاش</div>
+        <span class="tag-sub">⚡ الأسهل داخل مصر • يستغرق دقائق للتأكد من التحويل</span>
       </div>
 
       <div id="instaPayBox" style="display: none; background: rgba(0,0,0,0.25); padding: 12px; border-radius: 12px; margin-bottom: 12px;">
         <p style="font-size: 0.85rem; margin-bottom: 8px;">
-          حول المبلغ على عنوان إنستا باي أو رقم المحفظة ده:
-          <br><b style="color: var(--accent); font-size: 1rem;" id="merchantPaymentAddress">01064829916</b>
+          حول المبلغ على رقم إنستا باي أو محفظة الكاش ده:
+          <br><b style="color: var(--accent); font-size: 1.1rem;" id="merchantPaymentAddress">01064829916</b>
         </p>
         <input type="text" id="senderInfoInput" class="input-field" style="font-size: 0.9rem;" placeholder="اكتب اسمك في إنستا باي أو الرقم اللي حولت منه" />
         <button class="btn btn-success" id="submitInstaBtn" onclick="submitInstaPayOrder()">✅ حولت، أرسل للتأكيد الفوري</button>
@@ -503,7 +614,7 @@
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-    import { getDatabase, ref, set, get, update, onValue, runTransaction } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+    import { getDatabase, ref, set, get, update, remove, onValue, runTransaction } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyBKcdE1Yxfi6XS7bpDfWhwdTSw9AKPx4EU",
@@ -517,6 +628,7 @@
     const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwYa3FDPXq1KlE4n8tROEdaQjBSUptOfQsImIrasx-RpMNE580FTu4eBQ7ykZcZRl-G2A/exec";
     const BOT_USERNAME = "aflam_game_bot";
     const INSTAPAY_DETAILS = "01064829916";
+    const ADMIN_TELEGRAM_USERNAME = "dr_amr_osama"; // يوزر الأدمن
 
     document.getElementById("merchantPaymentAddress").innerText = INSTAPAY_DETAILS;
 
@@ -526,10 +638,13 @@
     if (tg) tg.expand();
 
     let currentUser = {
-      id: "user_" + Math.floor(10000 + Math.random() * 90000),
+      id: localStorage.getItem("sahra_uid") || ("user_" + Math.floor(10000 + Math.random() * 90000)),
       name: "لاعب سينمائي",
+      username: "",
       tickets: 2
     };
+    localStorage.setItem("sahra_uid", currentUser.id);
+
     let currentRoomCode = null;
     let isHost = false;
     let roomState = null;
@@ -538,15 +653,31 @@
     let lockedOutThisRound = false;
     let lastLoadedRound = -1;
     let roomUnsubscribe = null;
+    let isAdvancingRound = false;
+    let allUsersCache = {};
+    let secretTapCount = 0;
+
+    function getTodayKey() {
+      return new Date().toISOString().slice(0, 10); // YYYY-MM-DD
+    }
 
     async function initUserAndReferrals() {
       const tgUser = tg?.initDataUnsafe?.user;
       if (tgUser) {
         currentUser.id = String(tgUser.id);
         currentUser.name = tgUser.first_name + (tgUser.last_name ? " " + tgUser.last_name : "");
+        currentUser.username = tgUser.username || "";
       }
       document.getElementById("userNameDisplay").innerText = currentUser.name;
       document.getElementById("userAvatar").innerText = currentUser.name.charAt(0);
+
+      // إظهار زر الأدمن لو اليوزر هو الدكتور عمرو أو سبق تفعيله على الجهاز
+      if (
+        currentUser.username.toLowerCase() === ADMIN_TELEGRAM_USERNAME ||
+        localStorage.getItem("is_sahra_admin") === "true"
+      ) {
+        document.getElementById("adminTopBtn").style.display = "flex";
+      }
 
       const startParam = tg?.initDataUnsafe?.start_param || "";
       let inviterId = null;
@@ -559,18 +690,33 @@
         autoJoinRoom = startParam.split("_")[1];
       }
 
+      const today = getTodayKey();
       const userRef = ref(db, `users/${currentUser.id}`);
       const snap = await get(userRef);
 
       if (!snap.exists()) {
-        const newUserData = {
+        await set(userRef, {
+          id: currentUser.id,
           name: currentUser.name,
+          username: currentUser.username,
           tickets: 2,
+          gamesPlayed: 0,
+          roomsCreated: 0,
+          joinedAt: Date.now(),
+          lastActiveDate: today,
           invitedBy: (inviterId && inviterId !== currentUser.id) ? inviterId : null,
           rewardGivenToInviter: false
-        };
-        await set(userRef, newUserData);
+        });
+      } else {
+        await update(userRef, {
+          name: currentUser.name,
+          username: currentUser.username || snap.val().username || "",
+          lastActiveDate: today
+        });
       }
+
+      // تسجيل اللاعب ضمن النشطين اليوم
+      await set(ref(db, `dailyStats/${today}/activeUsers/${currentUser.id}`), true);
 
       onValue(ref(db, `users/${currentUser.id}/tickets`), (ticketSnap) => {
         if (ticketSnap.exists()) {
@@ -586,6 +732,20 @@
     }
 
     initUserAndReferrals();
+
+    // طريقة سرية لفتح لوحة الأدمن من أي متصفح بالضغط 5 مرات على دائرة الأفاتار
+    window.handleAvatarSecretTap = () => {
+      secretTapCount++;
+      if (secretTapCount >= 5) {
+        secretTapCount = 0;
+        const pin = prompt("أدخل الرقم السري للأدمن:");
+        if (pin === "2026") {
+          localStorage.setItem("is_sahra_admin", "true");
+          document.getElementById("adminTopBtn").style.display = "flex";
+          openAdminDashboard();
+        }
+      }
+    };
 
     window.showScreen = (screenId) => {
       document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
@@ -617,7 +777,7 @@
         const moviesList = data.movies || [];
 
         if (moviesList.length === 0) {
-          alert("تأكد من إضافة أفلام في هذا القسم داخل شيت جوجل!");
+          alert("تأكد من إضافة أفلام في شيت جوجل داخل ورقة Movies_Bank!");
           return;
         }
 
@@ -628,6 +788,7 @@
         const roomRef = ref(db, `rooms/${roomCode}`);
         await set(roomRef, {
           hostId: currentUser.id,
+          createdAt: Date.now(),
           status: "waiting",
           currentRound: 0,
           roundStartTime: 0,
@@ -642,10 +803,15 @@
           }
         });
 
+        // تحديث إحصائيات الغرف اليومية
+        const today = getTodayKey();
+        await runTransaction(ref(db, `dailyStats/${today}/roomsCreated`), (val) => (val || 0) + 1);
+        await runTransaction(ref(db, `users/${currentUser.id}/roomsCreated`), (val) => (val || 0) + 1);
+
         subscribeToRoom(roomCode);
         showScreen("lobbyScreen");
       } catch (e) {
-        alert("حدث خطأ أثناء الاتصال بشيت الأفلام، تأكد من نشر الاسكريبت بصلاحية Anyone!");
+        alert("حدث خطأ أثناء سحب الأسئلة، تأكد من تحديث نشر Google Script!");
       } finally {
         btn.disabled = false;
         btn.innerText = "🎬 فتح الغرفة الآن (تخصم 1 🎟️ عند البدء)";
@@ -701,7 +867,7 @@
           clearInterval(localTimerInterval);
           clearInterval(buzzerTimerInterval);
           renderFinalLeaderboard(roomState.players || {});
-          rewardInviterIfEligible();
+          recordGamePlayedAndRewardInviter();
           showScreen("resultScreen");
         }
       });
@@ -751,13 +917,13 @@
       if (lastLoadedRound !== roundIdx) {
         lastLoadedRound = roundIdx;
         lockedOutThisRound = false;
+        isAdvancingRound = false;
       }
 
       if (state.failedPlayers && state.failedPlayers[currentUser.id]) {
         lockedOutThisRound = true;
       }
 
-      // الانتقال الفوري للجولة التالية إذا أخطأ جميع اللاعبين
       const totalPlayersCount = Object.keys(state.players || {}).length;
       const failedPlayersCount = Object.keys(state.failedPlayers || {}).length;
       if (isHost && totalPlayersCount > 0 && failedPlayersCount >= totalPlayersCount && !state.buzzerLocked) {
@@ -869,7 +1035,9 @@
     };
 
     window.submitMovieAnswer = async (chosenOption) => {
+      if (isAdvancingRound) return;
       clearInterval(buzzerTimerInterval);
+
       const roundIdx = roomState.currentRound;
       const movie = roomState.movies[roundIdx];
       const lockTime = roomState.buzzerLockedAt || Date.now();
@@ -882,6 +1050,7 @@
       let currentScore = roomState.players[currentUser.id]?.score || 0;
 
       if (chosenOption === movie.answer) {
+        isAdvancingRound = true;
         await update(ref(db, `rooms/${currentRoomCode}/players/${currentUser.id}`), {
           score: currentScore + earnedPoints
         });
@@ -913,12 +1082,12 @@
     }
 
     async function moveToNextRound() {
-      const nextIdx = roomState.currentRound + 1;
-      if (nextIdx >= roomState.movies.length) {
+      const targetRound = roomState.currentRound + 1;
+      if (targetRound >= roomState.movies.length) {
         await update(ref(db, `rooms/${currentRoomCode}`), { status: "finished" });
       } else {
         await update(ref(db, `rooms/${currentRoomCode}`), {
-          currentRound: nextIdx,
+          currentRound: targetRound,
           roundStartTime: Date.now(),
           buzzerLocked: false,
           buzzerLockedAt: 0,
@@ -940,7 +1109,11 @@
       `).join("");
     }
 
-    async function rewardInviterIfEligible() {
+    async function recordGamePlayedAndRewardInviter() {
+      const today = getTodayKey();
+      await set(ref(db, `dailyStats/${today}/playersPlayed/${currentUser.id}`), true);
+      await runTransaction(ref(db, `users/${currentUser.id}/gamesPlayed`), (val) => (val || 0) + 1);
+
       const userRef = ref(db, `users/${currentUser.id}`);
       const snap = await get(userRef);
       if (snap.exists()) {
@@ -955,6 +1128,145 @@
       }
     }
 
+    // ==========================================
+    // دوال لوحة تحكم الأدمن (Admin Dashboard)
+    // ==========================================
+    window.openAdminDashboard = () => {
+      showScreen("adminScreen");
+      const today = getTodayKey();
+
+      // 1. الاستماع لإحصائيات اليوم
+      onValue(ref(db, `dailyStats/${today}`), (snap) => {
+        const data = snap.val() || {};
+        const activeCount = Object.keys(data.activeUsers || {}).length;
+        const roomsToday = data.roomsCreated || 0;
+        document.getElementById("statActiveToday").innerText = activeCount;
+        document.getElementById("statRoomsToday").innerText = roomsToday;
+      });
+
+      // 2. الاستماع للغرف النشطة حالياً
+      onValue(ref(db, `rooms`), (snap) => {
+        const rooms = snap.val() || {};
+        const activeRooms = Object.values(rooms).filter(r => r.status === "waiting" || r.status === "playing").length;
+        document.getElementById("statLiveRooms").innerText = activeRooms;
+      });
+
+      // 3. الاستماع لطلبات الشحن المعلقة
+      onValue(ref(db, `pendingOrders`), (snap) => {
+        const orders = snap.val() || {};
+        const list = Object.values(orders).sort((a,b) => b.createdAt - a.createdAt);
+        const container = document.getElementById("adminPendingOrdersList");
+        if (list.length === 0) {
+          container.innerHTML = "لا توجد طلبات معلقة حالياً ✅";
+          return;
+        }
+        container.innerHTML = list.map(o => `
+          <div style="background:rgba(0,0,0,0.25); padding:10px; border-radius:10px; margin-bottom:8px; border:1px solid rgba(245,158,11,0.3);">
+            <div style="font-weight:800; color:#fff;">👤 ${o.userName} (${o.userId})</div>
+            <div style="color:var(--accent); font-weight:700;">🎟️ ${o.tickets} تذاكر • 💰 ${o.amountEGP} ج.م</div>
+            <div style="margin:4px 0; color:#cbd5e1;">📝 التحويل: <b>${o.senderInfo}</b></div>
+            <div style="display:flex; gap:8px; margin-top:8px;">
+              <button class="btn btn-success" style="padding:8px; font-size:0.85rem; margin:0;" onclick="adminApproveOrder('${o.transId}', '${o.userId}', ${o.tickets})">✅ تفعيل فوري</button>
+              <button class="btn btn-danger" style="padding:8px; font-size:0.85rem; margin:0;" onclick="adminRejectOrder('${o.transId}')">❌ رفض</button>
+            </div>
+          </div>
+        `).join("");
+      });
+
+      // 4. الاستماع لقائمة كل المستخدمين
+      onValue(ref(db, `users`), (snap) => {
+        allUsersCache = snap.val() || {};
+        document.getElementById("statTotalUsers").innerText = Object.keys(allUsersCache).length;
+        filterAdminUsers();
+      });
+    };
+
+    window.filterAdminUsers = () => {
+      const q = (document.getElementById("adminUserSearchInput").value || "").trim().toLowerCase();
+      const entries = Object.entries(allUsersCache).map(([uid, u]) => ({
+        id: uid,
+        name: u.name || "بدون اسم",
+        username: u.username || "",
+        tickets: u.tickets ?? 0,
+        gamesPlayed: u.gamesPlayed || 0
+      }));
+
+      const filtered = entries.filter(u =>
+        u.name.toLowerCase().includes(q) ||
+        u.username.toLowerCase().includes(q) ||
+        u.id.toLowerCase().includes(q)
+      );
+
+      const container = document.getElementById("adminUsersList");
+      container.innerHTML = filtered.map(u => `
+        <div class="user-row">
+          <div>
+            <div style="font-weight:800; font-size:0.9rem;">👤 ${u.name} ${u.username ? `<span style="color:var(--accent); font-size:0.78rem;">@${u.username}</span>` : ""}</div>
+            <div style="font-size:0.75rem; color:var(--text-muted);">ID: ${u.id} • رصيده: <b style="color:#fff;">${u.tickets} 🎟️</b> • لعب: ${u.gamesPlayed}</div>
+          </div>
+          <button class="btn btn-accent" style="width:auto; padding:8px 12px; margin:0; font-size:0.82rem;" onclick="adminSendTicketsToUser('${u.id}', '${u.name.replace(/'/g, "\\'")}')">
+            ➕ شحن
+          </button>
+        </div>
+      `).join("");
+    };
+
+    window.adminSendTicketsToUser = async (targetUid, targetName) => {
+      const amount = parseInt(document.getElementById("adminTicketAmountInput").value);
+      if (isNaN(amount) || amount === 0) return alert("اكتب عدد التذاكر أولاً!");
+
+      let newBal = 0;
+      const ticketRef = ref(db, `users/${targetUid}/tickets`);
+      await runTransaction(ticketRef, (current) => {
+        newBal = Math.max(0, (current ?? 2) + amount);
+        return newBal;
+      });
+
+      // إرسال إشعار للاعب على تيليجرام
+      fetch(GOOGLE_SCRIPT_URL, {
+        method: "POST",
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        body: JSON.stringify({
+          action: "adminNotifyUser",
+          targetUserId: targetUid,
+          ticketsAdded: amount,
+          newBalance: newBal
+        })
+      }).catch(() => {});
+
+      alert(`✅ تم شحن ${amount} تذكرة للاعب (${targetName}) وأصبح رصيده الآن: ${newBal} 🎟️`);
+    };
+
+    window.adminApproveOrder = async (transId, targetUid, ticketsCount) => {
+      let newBal = 0;
+      await runTransaction(ref(db, `users/${targetUid}/tickets`), (current) => {
+        newBal = (current ?? 2) + Number(ticketsCount);
+        return newBal;
+      });
+      await remove(ref(db, `pendingOrders/${transId}`));
+
+      fetch(GOOGLE_SCRIPT_URL, {
+        method: "POST",
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        body: JSON.stringify({
+          action: "adminNotifyUser",
+          targetUserId: targetUid,
+          ticketsAdded: ticketsCount,
+          newBalance: newBal
+        })
+      }).catch(() => {});
+
+      alert(`✅ تم تفعيل الطلب وشحن ${ticketsCount} تذاكر بنجاح!`);
+    };
+
+    window.adminRejectOrder = async (transId) => {
+      await remove(ref(db, `pendingOrders/${transId}`));
+      alert("❌ تم حذف/رفض الطلب.");
+    };
+
+    // ==========================================
+    // مشاركة الروابط ومتجر التذاكر
+    // ==========================================
     window.shareReferralLink = () => {
       const link = `https://t.me/${BOT_USERNAME}/game?startapp=ref_${currentUser.id}`;
       const text = encodeURIComponent("تعالى نلعب لعبة السهرة السينمائية مع بعض! 🎬🍿");
@@ -997,7 +1309,8 @@
         });
         const data = await res.json();
         if (data.status === "success") {
-          alert("✅ تم إرسال طلبك! خلال 3 دقائق هيتم مراجعة التحويل وتنزل التذاكر في حسابك تلقائياً.");
+          alert("✅ تم إرسال طلبك! هيتم مراجعة التحويل وتنزل التذاكر في حسابك فوراً.");
+          document.getElementById("senderInfoInput").value = "";
           closeStoreModal();
         }
       } catch (e) {

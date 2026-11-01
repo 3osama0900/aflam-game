@@ -1,0 +1,1040 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>السهرة السينمائية 🎬</title>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;800;900&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --bg-dark: #0b0f19;
+      --card-bg: #161f33;
+      --accent: #f59e0b;
+      --accent-hover: #d97706;
+      --primary: #3b82f6;
+      --success: #10b981;
+      --danger: #ef4444;
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Cairo', sans-serif;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      background: radial-gradient(circle at top, #1e293b, var(--bg-dark));
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+    }
+
+    .top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 16px;
+      background: rgba(22, 31, 51, 0.85);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
+
+    .user-info {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 700;
+      font-size: 0.95rem;
+    }
+
+    .avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: var(--primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 900;
+      border: 2px solid var(--accent);
+    }
+
+    .ticket-badge {
+      background: linear-gradient(135deg, #f59e0b, #b45309);
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+      font-size: 0.9rem;
+    }
+
+    .screen {
+      display: none;
+      flex: 1;
+      padding: 18px 16px;
+      max-width: 500px;
+      width: 100%;
+      margin: 0 auto;
+      animation: fadeIn 0.25s ease;
+    }
+
+    .screen.active {
+      display: flex;
+      flex-direction: column;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .card {
+      background: var(--card-bg);
+      border-radius: 18px;
+      padding: 18px;
+      margin-bottom: 14px;
+      border: 1px solid rgba(255,255,255,0.07);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+    }
+
+    .hero-title {
+      text-align: center;
+      margin: 10px 0 20px;
+    }
+
+    .hero-title h1 {
+      font-size: 1.7rem;
+      font-weight: 900;
+      color: var(--accent);
+      text-shadow: 0 2px 10px rgba(245, 158, 11, 0.3);
+    }
+
+    .hero-title p {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+    }
+
+    .btn {
+      width: 100%;
+      padding: 14px;
+      border-radius: 14px;
+      border: none;
+      font-size: 1.05rem;
+      font-weight: 800;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: transform 0.1s, opacity 0.2s;
+      margin-bottom: 10px;
+      color: #fff;
+    }
+
+    .btn:active { transform: scale(0.97); }
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .btn-primary { background: linear-gradient(135deg, #3b82f6, #1d4ed8); }
+    .btn-accent { background: linear-gradient(135deg, #f59e0b, #d97706); color: #000; }
+    .btn-success { background: linear-gradient(135deg, #10b981, #047857); }
+    .btn-danger { background: linear-gradient(135deg, #ef4444, #b91c1c); }
+    .btn-outline { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.15); }
+
+    .input-field {
+      width: 100%;
+      padding: 13px;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,0.15);
+      background: rgba(0,0,0,0.3);
+      color: #fff;
+      font-size: 1.1rem;
+      text-align: center;
+      font-weight: 700;
+      margin-bottom: 12px;
+      outline: none;
+    }
+
+    .categories-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      margin: 12px 0 18px;
+    }
+
+    .cat-item {
+      background: rgba(255,255,255,0.04);
+      border: 2px solid rgba(255,255,255,0.08);
+      border-radius: 12px;
+      padding: 10px;
+      text-align: center;
+      cursor: pointer;
+      font-weight: 700;
+      font-size: 0.9rem;
+      transition: all 0.2s;
+    }
+
+    .cat-item.selected {
+      border-color: var(--accent);
+      background: rgba(245, 158, 11, 0.15);
+      color: var(--accent);
+    }
+
+    .scoreboard {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding-bottom: 8px;
+      margin-bottom: 12px;
+    }
+
+    .player-pill {
+      background: rgba(255,255,255,0.06);
+      padding: 6px 12px;
+      border-radius: 12px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      white-space: nowrap;
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .cinema-screen {
+      background: linear-gradient(180deg, #1e293b, #0f172a);
+      border: 2px solid rgba(245, 158, 11, 0.35);
+      border-radius: 20px;
+      padding: 20px 16px;
+      text-align: center;
+      position: relative;
+      margin-bottom: 16px;
+      min-height: 220px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .timer-ring {
+      font-size: 1.5rem;
+      font-weight: 900;
+      color: var(--accent);
+      margin-bottom: 8px;
+    }
+
+    .clue-box {
+      background: rgba(255,255,255,0.05);
+      padding: 10px 12px;
+      border-radius: 12px;
+      margin: 6px 0;
+      font-size: 1rem;
+      font-weight: 700;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .clue-emoji {
+      font-size: 2.1rem;
+      letter-spacing: 4px;
+    }
+
+    .buzzer-btn {
+      width: 155px;
+      height: 155px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 30% 30%, #ff5f5f, #b91c1c);
+      border: 8px solid #7f1d1d;
+      color: #fff;
+      font-size: 1.25rem;
+      font-weight: 900;
+      margin: 10px auto;
+      cursor: pointer;
+      box-shadow: 0 10px 25px rgba(239, 68, 68, 0.5), inset 0 4px 10px rgba(255,255,255,0.4);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.1s;
+    }
+
+    .buzzer-btn:active { transform: scale(0.92); }
+    .buzzer-btn:disabled {
+      background: #475569;
+      border-color: #334155;
+      box-shadow: none;
+      opacity: 0.6;
+    }
+
+    .options-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.8);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      z-index: 100;
+    }
+
+    .modal-overlay.active { display: flex; }
+
+    .modal-content {
+      background: var(--card-bg);
+      width: 100%;
+      max-width: 440px;
+      border-radius: 20px;
+      padding: 20px;
+      border: 1px solid rgba(255,255,255,0.12);
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+
+    .pay-method-card {
+      border: 2px solid rgba(255,255,255,0.12);
+      border-radius: 14px;
+      padding: 12px;
+      margin-bottom: 10px;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    .pay-method-card:hover, .pay-method-card.selected {
+      border-color: var(--accent);
+      background: rgba(245, 158, 11, 0.1);
+    }
+
+    .tag-sub {
+      font-size: 0.78rem;
+      color: var(--accent);
+      font-weight: 700;
+      display: block;
+      margin-top: 2px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="top-bar">
+    <div class="user-info">
+      <div class="avatar" id="userAvatar">🎬</div>
+      <span id="userNameDisplay">جاري التحميل...</span>
+    </div>
+    <div class="ticket-badge" onclick="openStoreModal()">
+      <span>🎟️</span>
+      <span id="userTicketsDisplay">2</span>
+      <span>+</span>
+    </div>
+  </div>
+
+  <!-- 1. Home Screen -->
+  <div class="screen active" id="homeScreen">
+    <div class="hero-title">
+      <h1>🍿 السهرة السينمائية</h1>
+      <p>اتحدى أصحابك لحظياً في أشهر الأفلام والمسلسلات</p>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-bottom: 12px;">🎬 إنشاء غرفة جديدة (1 🎟️)</h3>
+      <button class="btn btn-accent" onclick="showScreen('setupRoomScreen')">
+        <span>➕</span> اضبط إعدادات الغرفة وابدأ
+      </button>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-bottom: 10px;">🔑 معاك كود غرفة؟ (مجاناً)</h3>
+      <input type="number" id="joinRoomCodeInput" class="input-field" placeholder="اكتب رقم الغرفة (مثال: 4829)" />
+      <button class="btn btn-primary" onclick="joinRoomByCode()">
+        <span>🚀</span> دخول الغرفة فوراً
+      </button>
+    </div>
+
+    <div class="card" style="text-align: center;">
+      <h4 style="color: var(--accent); margin-bottom: 6px;">🎁 اكسب تذاكر مجانية!</h4>
+      <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 12px;">
+        ابعت رابط اللعبة لأصحابك، وأول ما صاحبك يلعب أول جيم هتاخد <b>تذكرة هدية مجاناً</b>!
+      </p>
+      <button class="btn btn-outline" onclick="shareReferralLink()">
+        <span>📤</span> مشاركة كود الدعوة مع أصحابك
+      </button>
+    </div>
+  </div>
+
+  <!-- 2. Setup Room Screen -->
+  <div class="screen" id="setupRoomScreen">
+    <div class="card">
+      <h3>🌍 اختار نوع الأفلام والدراما:</h3>
+      <p style="font-size: 0.8rem; color: var(--text-muted);">تقدر تختار دولة واحدة أو أكتر مع بعض</p>
+      
+      <div class="categories-grid" id="categoriesContainer">
+        <div class="cat-item selected" data-cat="EG" onclick="toggleCat(this)">🇪🇬 مصرية</div>
+        <div class="cat-item" data-cat="SA" onclick="toggleCat(this)">🇸🇦 سعودية</div>
+        <div class="cat-item" data-cat="KW" onclick="toggleCat(this)">🇰🇼 كويتية وخليجية</div>
+        <div class="cat-item" data-cat="SY" onclick="toggleCat(this)">🇸🇾 سورية</div>
+        <div class="cat-item" data-cat="LB" onclick="toggleCat(this)">🇱🇧 لبنانية</div>
+        <div class="cat-item" data-cat="WORLD" onclick="toggleCat(this)">🌍 عالمية</div>
+      </div>
+
+      <h3 style="margin-bottom: 8px;">⏱️ عدد الجولات:</h3>
+      <select id="roundsSelect" class="input-field" style="font-size: 1rem;">
+        <option value="5">⚡ جيم سريع (5 جولات)</option>
+        <option value="10" selected>🎬 سهرة قياسية (10 جولات)</option>
+        <option value="15">🔥 ماراثون السهرة (15 جولة)</option>
+      </select>
+
+      <button class="btn btn-accent" id="createRoomBtn" onclick="createNewRoom()">
+        <span>🎬</span> فتح الغرفة الآن (تخصم 1 🎟️ عند البدء)
+      </button>
+      <button class="btn btn-outline" onclick="showScreen('homeScreen')">رجوع</button>
+    </div>
+  </div>
+
+  <!-- 3. Lobby Waiting Screen -->
+  <div class="screen" id="lobbyScreen">
+    <div class="card" style="text-align: center;">
+      <p style="color: var(--text-muted);">رقم الغرفة:</p>
+      <h1 id="lobbyRoomCode" style="font-size: 2.8rem; letter-spacing: 6px; color: var(--accent); margin: 4px 0;">----</h1>
+      <button class="btn btn-primary" onclick="inviteFriendsToRoom()" style="margin-top: 8px;">
+        <span>📲</span> اعزم صحابك للغرفة بضغطة (مع كود دعوتك)
+      </button>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-bottom: 10px;">👥 اللاعبين المتصلين الآن:</h3>
+      <div id="lobbyPlayersList" style="display: flex; flex-direction: column; gap: 8px;"></div>
+    </div>
+
+    <button class="btn btn-success" id="hostStartGameBtn" style="display: none;" onclick="hostStartGame()">
+      <span>🔥</span> ابدأ السهرة الآن!
+    </button>
+    <p id="guestWaitingMsg" style="text-align: center; color: var(--text-muted); margin-top: 10px;">
+      في انتظار صاحب الغرفة يبدأ الجيم...
+    </p>
+  </div>
+
+  <!-- 4. Game Arena Screen -->
+  <div class="screen" id="gameScreen">
+    <div class="scoreboard" id="liveScoreboard"></div>
+
+    <div style="display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 0.9rem; color: var(--text-muted);">
+      <span id="roundCounterText">الجولة 1 / 10</span>
+      <span id="currentPointsBadge" style="color: var(--accent); font-weight: 800;">جائزة المرحلة: 100 نقطة 🔥</span>
+    </div>
+
+    <div class="cinema-screen">
+      <div class="timer-ring" id="roundTimerDisplay">20</div>
+      <div id="clue1Box" class="clue-box clue-emoji">🎬</div>
+      <div id="clue2Box" class="clue-box" style="display: none; color: #cbd5e1;"></div>
+      <div id="clue3Box" class="clue-box" style="display: none; color: var(--accent);"></div>
+    </div>
+
+    <div id="buzzerStatusBanner" style="text-align: center; font-weight: 800; margin-bottom: 8px; min-height: 26px; color: var(--accent);"></div>
+
+    <button class="buzzer-btn" id="mainBuzzerBtn" onclick="pressBuzzer()">
+      <span style="font-size: 2rem;">🚨</span>
+      <span>عرفته!</span>
+    </button>
+
+    <div class="options-grid" id="optionsContainer" style="display: none;"></div>
+  </div>
+
+  <!-- 5. Podium Screen -->
+  <div class="screen" id="resultScreen">
+    <div class="card" style="text-align: center;">
+      <h1 style="color: var(--accent); margin-bottom: 12px;">🏆 نجوم السهرة!</h1>
+      <div id="finalLeaderboard" style="display: flex; flex-direction: column; gap: 10px; margin: 16px 0;"></div>
+      <button class="btn btn-accent" onclick="showScreen('homeScreen')">العودة للرئيسية</button>
+    </div>
+  </div>
+
+  <!-- Store Modal -->
+  <div class="modal-overlay" id="storeModal">
+    <div class="modal-content">
+      <h3 style="margin-bottom: 12px; text-align: center;">🎟️ متجر تذاكر السهرة</h3>
+      
+      <label style="font-size: 0.85rem; color: var(--text-muted);">1. اختار الباقة:</label>
+      <select id="packSelect" class="input-field" style="font-size: 0.95rem; margin-top: 6px;">
+        <option value="1|15|25">🎟️ تذكرة سهرة واحدة (15 ج.م / 25 نجمة ⭐)</option>
+        <option value="6|60|90" selected>🔥 باقة الشلة: 6 تذاكر (60 ج.م / 90 نجمة ⭐)</option>
+        <option value="15|140|200">👑 باقة المخرج: 15 تذكرة (140 ج.م / 200 نجمة ⭐)</option>
+      </select>
+
+      <label style="font-size: 0.85rem; color: var(--text-muted); display: block; margin-bottom: 8px;">2. اختار طريقة الدفع:</label>
+
+      <div class="pay-method-card" onclick="toggleInstaPayForm()">
+        <div style="font-weight: 800; font-size: 1rem;">🇪🇬 إنستا باي (InstaPay) أو محفظة كاش</div>
+        <span class="tag-sub">⚡ الأسهل داخل مصر • يستغرق 3 دقائق للتأكد من التحويل</span>
+      </div>
+
+      <div id="instaPayBox" style="display: none; background: rgba(0,0,0,0.25); padding: 12px; border-radius: 12px; margin-bottom: 12px;">
+        <p style="font-size: 0.85rem; margin-bottom: 8px;">
+          حول المبلغ على عنوان إنستا باي أو رقم المحفظة ده:
+          <br><b style="color: var(--accent); font-size: 1rem;" id="merchantPaymentAddress">01064829916</b>
+        </p>
+        <input type="text" id="senderInfoInput" class="input-field" style="font-size: 0.9rem;" placeholder="اكتب اسمك في إنستا باي أو الرقم اللي حولت منه" />
+        <button class="btn btn-success" id="submitInstaBtn" onclick="submitInstaPayOrder()">✅ حولت، أرسل للتأكيد الفوري</button>
+      </div>
+
+      <div class="pay-method-card" onclick="payWithTelegramStars()">
+        <div style="font-weight: 800; font-size: 1rem;">⭐ نجوم تيليجرام (Telegram Stars)</div>
+        <span class="tag-sub">🌍 دفع دولي ولحظي • تفعيل فوري أوتوماتيكي</span>
+      </div>
+
+      <button class="btn btn-outline" style="margin-top: 8px;" onclick="closeStoreModal()">إغلاق</button>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getDatabase, ref, set, get, update, onValue, runTransaction } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBKcdE1Yxfi6XS7bpDfWhwdTSw9AKPx4EU",
+      authDomain: "aflam-game.firebaseapp.com",
+      databaseURL: "https://aflam-game-default-rtdb.firebaseio.com",
+      projectId: "aflam-game",
+      storageBucket: "aflam-game.firebasestorage.app",
+      messagingSenderId: "872046297032",
+      appId: "1:872046297032:web:231d532ffa7c3c18224afd"
+    };
+    const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwYa3FDPXq1KlE4n8tROEdaQjBSUptOfQsImIrasx-RpMNE580FTu4eBQ7ykZcZRl-G2A/exec";
+    const BOT_USERNAME = "aflam_game_bot";
+    const INSTAPAY_DETAILS = "01064829916";
+
+    document.getElementById("merchantPaymentAddress").innerText = INSTAPAY_DETAILS;
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+    const tg = window.Telegram?.WebApp;
+    if (tg) tg.expand();
+
+    let currentUser = {
+      id: "user_" + Math.floor(10000 + Math.random() * 90000),
+      name: "لاعب سينمائي",
+      tickets: 2
+    };
+    let currentRoomCode = null;
+    let isHost = false;
+    let roomState = null;
+    let localTimerInterval = null;
+    let buzzerTimerInterval = null;
+    let lockedOutThisRound = false;
+    let lastLoadedRound = -1;
+    let roomUnsubscribe = null;
+
+    async function initUserAndReferrals() {
+      const tgUser = tg?.initDataUnsafe?.user;
+      if (tgUser) {
+        currentUser.id = String(tgUser.id);
+        currentUser.name = tgUser.first_name + (tgUser.last_name ? " " + tgUser.last_name : "");
+      }
+      document.getElementById("userNameDisplay").innerText = currentUser.name;
+      document.getElementById("userAvatar").innerText = currentUser.name.charAt(0);
+
+      const startParam = tg?.initDataUnsafe?.start_param || "";
+      let inviterId = null;
+      let autoJoinRoom = null;
+
+      if (startParam.includes("ref_")) {
+        inviterId = startParam.split("ref_")[1].split("_")[0];
+      }
+      if (startParam.startsWith("room_")) {
+        autoJoinRoom = startParam.split("_")[1];
+      }
+
+      const userRef = ref(db, `users/${currentUser.id}`);
+      const snap = await get(userRef);
+
+      if (!snap.exists()) {
+        const newUserData = {
+          name: currentUser.name,
+          tickets: 2,
+          invitedBy: (inviterId && inviterId !== currentUser.id) ? inviterId : null,
+          rewardGivenToInviter: false
+        };
+        await set(userRef, newUserData);
+      }
+
+      onValue(ref(db, `users/${currentUser.id}/tickets`), (ticketSnap) => {
+        if (ticketSnap.exists()) {
+          currentUser.tickets = ticketSnap.val();
+          document.getElementById("userTicketsDisplay").innerText = currentUser.tickets;
+        }
+      });
+
+      if (autoJoinRoom) {
+        document.getElementById("joinRoomCodeInput").value = autoJoinRoom;
+        joinRoomByCode();
+      }
+    }
+
+    initUserAndReferrals();
+
+    window.showScreen = (screenId) => {
+      document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
+      document.getElementById(screenId).classList.add("active");
+    };
+
+    window.toggleCat = (el) => {
+      el.classList.toggle("selected");
+    };
+
+    window.createNewRoom = async () => {
+      if (currentUser.tickets < 1) {
+        alert("⚠️ رصيد تذاكرك خلص! اشحن تذاكر أو اعزم صديق عشان تفتح غرفة جديدة.");
+        openStoreModal();
+        return;
+      }
+
+      const selectedCats = Array.from(document.querySelectorAll(".cat-item.selected")).map(el => el.dataset.cat);
+      if (selectedCats.length === 0) return alert("اختار تصنيف أفلام واحد على الأقل!");
+
+      const roundsCount = parseInt(document.getElementById("roundsSelect").value);
+      const btn = document.getElementById("createRoomBtn");
+      btn.disabled = true;
+      btn.innerText = "⏳ جاري تحضير الأفلام والغرفة...";
+
+      try {
+        const res = await fetch(`${GOOGLE_SCRIPT_URL}?action=getMovies&category=${selectedCats.join(",")}&limit=${roundsCount}`);
+        const data = await res.json();
+        const moviesList = data.movies || [];
+
+        if (moviesList.length === 0) {
+          alert("تأكد من إضافة أفلام في هذا القسم داخل شيت جوجل!");
+          return;
+        }
+
+        const roomCode = String(Math.floor(1000 + Math.random() * 9000));
+        currentRoomCode = roomCode;
+        isHost = true;
+
+        const roomRef = ref(db, `rooms/${roomCode}`);
+        await set(roomRef, {
+          hostId: currentUser.id,
+          status: "waiting",
+          currentRound: 0,
+          roundStartTime: 0,
+          buzzerLocked: false,
+          buzzerLockedAt: 0,
+          buzzerWinnerId: "",
+          buzzerWinnerName: "",
+          failedPlayers: {},
+          movies: moviesList,
+          players: {
+            [currentUser.id]: { name: currentUser.name, score: 0 }
+          }
+        });
+
+        subscribeToRoom(roomCode);
+        showScreen("lobbyScreen");
+      } catch (e) {
+        alert("حدث خطأ أثناء الاتصال بشيت الأفلام، تأكد من نشر الاسكريبت بصلاحية Anyone!");
+      } finally {
+        btn.disabled = false;
+        btn.innerText = "🎬 فتح الغرفة الآن (تخصم 1 🎟️ عند البدء)";
+      }
+    };
+
+    window.joinRoomByCode = async () => {
+      const code = document.getElementById("joinRoomCodeInput").value.trim();
+      if (!code) return alert("اكتب رقم الغرفة الأول!");
+
+      const roomRef = ref(db, `rooms/${code}`);
+      const snap = await get(roomRef);
+      if (!snap.exists()) return alert("❌ رقم الغرفة غير صحيح أو الغرفة قفلت!");
+
+      currentRoomCode = code;
+      isHost = (snap.val().hostId === currentUser.id);
+
+      await update(ref(db, `rooms/${code}/players/${currentUser.id}`), {
+        name: currentUser.name,
+        score: snap.val().players?.[currentUser.id]?.score || 0
+      });
+
+      subscribeToRoom(code);
+      showScreen("lobbyScreen");
+    };
+
+    function subscribeToRoom(code) {
+      if (roomUnsubscribe) roomUnsubscribe();
+      document.getElementById("lobbyRoomCode").innerText = code;
+      const roomRef = ref(db, `rooms/${code}`);
+
+      roomUnsubscribe = onValue(roomRef, (snap) => {
+        if (!snap.exists()) {
+          clearInterval(localTimerInterval);
+          clearInterval(buzzerTimerInterval);
+          alert("انتهت الغرفة!");
+          showScreen("homeScreen");
+          return;
+        }
+
+        roomState = snap.val();
+        renderLobbyPlayers(roomState.players || {});
+
+        if (roomState.status === "waiting") {
+          document.getElementById("hostStartGameBtn").style.display = isHost ? "flex" : "none";
+          document.getElementById("guestWaitingMsg").style.display = isHost ? "none" : "block";
+        } 
+        else if (roomState.status === "playing") {
+          showScreen("gameScreen");
+          handleGameUpdate(roomState);
+        } 
+        else if (roomState.status === "finished") {
+          clearInterval(localTimerInterval);
+          clearInterval(buzzerTimerInterval);
+          renderFinalLeaderboard(roomState.players || {});
+          rewardInviterIfEligible();
+          showScreen("resultScreen");
+        }
+      });
+    }
+
+    function renderLobbyPlayers(players) {
+      const container = document.getElementById("lobbyPlayersList");
+      container.innerHTML = Object.values(players).map(p => `
+        <div style="background: rgba(255,255,255,0.06); padding: 10px 14px; border-radius: 10px; font-weight: 700;">
+          👤 ${p.name}
+        </div>
+      `).join("");
+    }
+
+    window.hostStartGame = async () => {
+      if (!isHost) return;
+      if (currentUser.tickets < 1) return openStoreModal();
+
+      const ticketRef = ref(db, `users/${currentUser.id}/tickets`);
+      await runTransaction(ticketRef, (currentTickets) => {
+        if (currentTickets === null || currentTickets < 1) return;
+        return currentTickets - 1;
+      });
+
+      await update(ref(db, `rooms/${currentRoomCode}`), {
+        status: "playing",
+        currentRound: 0,
+        roundStartTime: Date.now(),
+        buzzerLocked: false,
+        buzzerLockedAt: 0,
+        buzzerWinnerId: "",
+        buzzerWinnerName: "",
+        failedPlayers: {}
+      });
+    };
+
+    function handleGameUpdate(state) {
+      const playersArr = Object.values(state.players || {}).sort((a,b) => b.score - a.score);
+      document.getElementById("liveScoreboard").innerHTML = playersArr.map(p => `
+        <div class="player-pill">👤 ${p.name}: <span style="color: var(--accent)">${p.score}</span></div>
+      `).join("");
+
+      const roundIdx = state.currentRound;
+      const movie = state.movies?.[roundIdx];
+      if (!movie) return;
+
+      if (lastLoadedRound !== roundIdx) {
+        lastLoadedRound = roundIdx;
+        lockedOutThisRound = false;
+      }
+
+      if (state.failedPlayers && state.failedPlayers[currentUser.id]) {
+        lockedOutThisRound = true;
+      }
+
+      // الانتقال الفوري للجولة التالية إذا أخطأ جميع اللاعبين
+      const totalPlayersCount = Object.keys(state.players || {}).length;
+      const failedPlayersCount = Object.keys(state.failedPlayers || {}).length;
+      if (isHost && totalPlayersCount > 0 && failedPlayersCount >= totalPlayersCount && !state.buzzerLocked) {
+        moveToNextRound();
+        return;
+      }
+
+      document.getElementById("roundCounterText").innerText = `الجولة ${roundIdx + 1} / ${state.movies.length}`;
+      document.getElementById("clue1Box").innerText = movie.clue1;
+      document.getElementById("clue2Box").innerText = "💬 " + movie.clue2;
+      document.getElementById("clue3Box").innerText = "🌟 " + movie.clue3;
+
+      const buzzerBtn = document.getElementById("mainBuzzerBtn");
+      const optionsBox = document.getElementById("optionsContainer");
+      const statusBanner = document.getElementById("buzzerStatusBanner");
+
+      if (state.buzzerLocked) {
+        clearInterval(localTimerInterval);
+        buzzerBtn.style.display = "none";
+
+        if (state.buzzerWinnerId === currentUser.id) {
+          optionsBox.style.display = "grid";
+          optionsBox.innerHTML = movie.options.map(opt => `
+            <button class="btn btn-primary" onclick="submitMovieAnswer('${opt.replace(/'/g, "\\'")}')">${opt}</button>
+          `).join("");
+        } else {
+          optionsBox.style.display = "none";
+        }
+        startBuzzerCountdown(state);
+      } else {
+        clearInterval(buzzerTimerInterval);
+        optionsBox.style.display = "none";
+        buzzerBtn.style.display = "flex";
+        buzzerBtn.disabled = lockedOutThisRound;
+        statusBanner.innerText = lockedOutThisRound ? "❌ جاوبت غلط في الجولة دي، انتظر الجولة الجاية!" : "";
+        startSynchronizedTimer(state);
+      }
+    }
+
+    function startBuzzerCountdown(state) {
+      clearInterval(buzzerTimerInterval);
+      const statusBanner = document.getElementById("buzzerStatusBanner");
+      const lockTime = state.buzzerLockedAt || Date.now();
+
+      buzzerTimerInterval = setInterval(() => {
+        const elapsed = Math.floor((Date.now() - lockTime) / 1000);
+        const remaining = Math.max(0, 6 - elapsed);
+
+        if (state.buzzerWinnerId === currentUser.id) {
+          statusBanner.innerText = `⚡ دورك! اختار الإجابة الصح خلال ${remaining} ثواني:`;
+        } else {
+          statusBanner.innerText = `🔔 ${state.buzzerWinnerName} بيجاوب الآن (${remaining} ث)...`;
+        }
+
+        if (remaining === 0) {
+          clearInterval(buzzerTimerInterval);
+          if (state.buzzerWinnerId === currentUser.id || isHost) {
+            handleWrongOrTimeoutAnswer(state.buzzerWinnerId);
+          }
+        }
+      }, 250);
+    }
+
+    function startSynchronizedTimer(state) {
+      clearInterval(localTimerInterval);
+      localTimerInterval = setInterval(() => {
+        const elapsed = Math.floor((Date.now() - state.roundStartTime) / 1000);
+        const remaining = Math.max(0, 20 - elapsed);
+        document.getElementById("roundTimerDisplay").innerText = remaining;
+
+        const isLastRound = (state.currentRound === state.movies.length - 1);
+        const multiplier = isLastRound ? 2 : 1;
+
+        if (elapsed < 6) {
+          document.getElementById("clue2Box").style.display = "none";
+          document.getElementById("clue3Box").style.display = "none";
+          document.getElementById("currentPointsBadge").innerText = `جائزة المرحلة: ${100 * multiplier} نقطة 🔥`;
+        } else if (elapsed < 13) {
+          document.getElementById("clue2Box").style.display = "block";
+          document.getElementById("clue3Box").style.display = "none";
+          document.getElementById("currentPointsBadge").innerText = `جائزة المرحلة: ${70 * multiplier} نقطة ⚡`;
+        } else {
+          document.getElementById("clue2Box").style.display = "block";
+          document.getElementById("clue3Box").style.display = "block";
+          document.getElementById("currentPointsBadge").innerText = `جائزة المرحلة: ${40 * multiplier} نقطة 💡`;
+        }
+
+        if (remaining === 0 && isHost && !state.buzzerLocked) {
+          clearInterval(localTimerInterval);
+          moveToNextRound();
+        }
+      }, 250);
+    }
+
+    window.pressBuzzer = async () => {
+      if (lockedOutThisRound) return;
+      if (tg?.HapticFeedback) tg.HapticFeedback.impactOccurred("heavy");
+
+      const roomRef = ref(db, `rooms/${currentRoomCode}`);
+      await runTransaction(roomRef, (currentData) => {
+        if (currentData && !currentData.buzzerLocked) {
+          currentData.buzzerLocked = true;
+          currentData.buzzerLockedAt = Date.now();
+          currentData.buzzerWinnerId = currentUser.id;
+          currentData.buzzerWinnerName = currentUser.name;
+        }
+        return currentData;
+      });
+    };
+
+    window.submitMovieAnswer = async (chosenOption) => {
+      clearInterval(buzzerTimerInterval);
+      const roundIdx = roomState.currentRound;
+      const movie = roomState.movies[roundIdx];
+      const lockTime = roomState.buzzerLockedAt || Date.now();
+      const elapsedBeforeBuzzer = Math.floor((lockTime - roomState.roundStartTime) / 1000);
+      const isLastRound = (roundIdx === roomState.movies.length - 1);
+      const multiplier = isLastRound ? 2 : 1;
+
+      let basePoints = elapsedBeforeBuzzer < 6 ? 100 : (elapsedBeforeBuzzer < 13 ? 70 : 40);
+      let earnedPoints = basePoints * multiplier;
+      let currentScore = roomState.players[currentUser.id]?.score || 0;
+
+      if (chosenOption === movie.answer) {
+        await update(ref(db, `rooms/${currentRoomCode}/players/${currentUser.id}`), {
+          score: currentScore + earnedPoints
+        });
+        await moveToNextRound();
+      } else {
+        await handleWrongOrTimeoutAnswer(currentUser.id);
+      }
+    };
+
+    async function handleWrongOrTimeoutAnswer(targetUserId) {
+      if (!roomState || !roomState.buzzerLocked) return;
+      if (targetUserId === currentUser.id) lockedOutThisRound = true;
+
+      const currentScore = roomState.players?.[targetUserId]?.score || 0;
+      const pausedTime = Math.max(0, Date.now() - (roomState.buzzerLockedAt || Date.now()));
+
+      await update(ref(db, `rooms/${currentRoomCode}/players/${targetUserId}`), {
+        score: Math.max(0, currentScore - 20)
+      });
+
+      await update(ref(db, `rooms/${currentRoomCode}`), {
+        roundStartTime: (roomState.roundStartTime || Date.now()) + pausedTime,
+        buzzerLocked: false,
+        buzzerLockedAt: 0,
+        buzzerWinnerId: "",
+        buzzerWinnerName: "",
+        [`failedPlayers/${targetUserId}`]: true
+      });
+    }
+
+    async function moveToNextRound() {
+      const nextIdx = roomState.currentRound + 1;
+      if (nextIdx >= roomState.movies.length) {
+        await update(ref(db, `rooms/${currentRoomCode}`), { status: "finished" });
+      } else {
+        await update(ref(db, `rooms/${currentRoomCode}`), {
+          currentRound: nextIdx,
+          roundStartTime: Date.now(),
+          buzzerLocked: false,
+          buzzerLockedAt: 0,
+          buzzerWinnerId: "",
+          buzzerWinnerName: "",
+          failedPlayers: {}
+        });
+      }
+    }
+
+    function renderFinalLeaderboard(players) {
+      const sorted = Object.values(players).sort((a,b) => b.score - a.score);
+      const medals = ["🥇", "🥈", "🥉"];
+      document.getElementById("finalLeaderboard").innerHTML = sorted.map((p, i) => `
+        <div style="display:flex; justify-content:space-between; background:rgba(255,255,255,0.08); padding:12px 16px; border-radius:12px; font-weight:800;">
+          <span>${medals[i] || "🎬"} ${p.name}</span>
+          <span style="color:var(--accent)">${p.score} نقطة</span>
+        </div>
+      `).join("");
+    }
+
+    async function rewardInviterIfEligible() {
+      const userRef = ref(db, `users/${currentUser.id}`);
+      const snap = await get(userRef);
+      if (snap.exists()) {
+        const uData = snap.val();
+        if (uData.invitedBy && !uData.rewardGivenToInviter) {
+          await update(userRef, { rewardGivenToInviter: true });
+          const inviterTicketsRef = ref(db, `users/${uData.invitedBy}/tickets`);
+          await runTransaction(inviterTicketsRef, (currentTickets) => {
+            return (currentTickets || 2) + 1;
+          });
+        }
+      }
+    }
+
+    window.shareReferralLink = () => {
+      const link = `https://t.me/${BOT_USERNAME}/game?startapp=ref_${currentUser.id}`;
+      const text = encodeURIComponent("تعالى نلعب لعبة السهرة السينمائية مع بعض! 🎬🍿");
+      window.open(`https://t.me/share/url?url=${encodeURIComponent(link)}&text=${text}`, "_blank");
+    };
+
+    window.inviteFriendsToRoom = () => {
+      const link = `https://t.me/${BOT_USERNAME}/game?startapp=room_${currentRoomCode}_ref_${currentUser.id}`;
+      const text = encodeURIComponent(`ادخل معايا غرفة رقم (${currentRoomCode}) في السهرة السينمائية فوراً! 🎬🔥`);
+      window.open(`https://t.me/share/url?url=${encodeURIComponent(link)}&text=${text}`, "_blank");
+    };
+
+    window.openStoreModal = () => document.getElementById("storeModal").classList.add("active");
+    window.closeStoreModal = () => document.getElementById("storeModal").classList.remove("active");
+    window.toggleInstaPayForm = () => {
+      const box = document.getElementById("instaPayBox");
+      box.style.display = box.style.display === "none" ? "block" : "none";
+    };
+
+    window.submitInstaPayOrder = async () => {
+      const senderInfo = document.getElementById("senderInfoInput").value.trim();
+      if (!senderInfo) return alert("اكتب اسم المحول أو الرقم اللي حولت منه الأول!");
+
+      const btn = document.getElementById("submitInstaBtn");
+      btn.disabled = true;
+
+      try {
+        const [tickets, egp, stars] = document.getElementById("packSelect").value.split("|");
+        const res = await fetch(GOOGLE_SCRIPT_URL, {
+          method: "POST",
+          headers: { "Content-Type": "text/plain;charset=utf-8" },
+          body: JSON.stringify({
+            action: "submitInstaPay",
+            userId: currentUser.id,
+            userName: currentUser.name,
+            tickets: tickets,
+            amountEGP: egp,
+            senderInfo: senderInfo
+          })
+        });
+        const data = await res.json();
+        if (data.status === "success") {
+          alert("✅ تم إرسال طلبك! خلال 3 دقائق هيتم مراجعة التحويل وتنزل التذاكر في حسابك تلقائياً.");
+          closeStoreModal();
+        }
+      } catch (e) {
+        alert("حدث خطأ أثناء إرسال الطلب، حاول مرة أخرى.");
+      } finally {
+        btn.disabled = false;
+      }
+    };
+
+    window.payWithTelegramStars = async () => {
+      try {
+        const [tickets, egp, stars] = document.getElementById("packSelect").value.split("|");
+        const res = await fetch(GOOGLE_SCRIPT_URL, {
+          method: "POST",
+          headers: { "Content-Type": "text/plain;charset=utf-8" },
+          body: JSON.stringify({
+            action: "createStarsInvoice",
+            userId: currentUser.id,
+            userName: currentUser.name,
+            tickets: tickets,
+            stars: stars
+          })
+        });
+        const data = await res.json();
+        if (data.invoiceUrl && tg?.openInvoice) {
+          tg.openInvoice(data.invoiceUrl, (status) => {
+            if (status === "paid") {
+              closeStoreModal();
+            }
+          });
+        } else {
+          alert("افتح اللعبة من داخل تطبيق تيليجرام لإتمام الدفع بالنجوم ⭐");
+        }
+      } catch (e) {
+        alert("تعذر إنشاء فاتورة النجوم حالياً.");
+      }
+    };
+  </script>
+</body>
+</html>

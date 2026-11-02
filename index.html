@@ -18,7 +18,11 @@
       --danger: #ef4444;
       --text: #f8fafc;
       --text-muted: #94a3b8;
-      --safe-top: calc(var(--tg-viewport-safe-area-inset-top, env(safe-area-inset-top, 0px)) + var(--tg-viewport-content-safe-area-inset-top, 0px));
+      /* حماية مضمونة ضد تداخل أزرار تيليجرام العائمة (Close X / Menu) */
+      --tg-top-pad: max(
+        calc(var(--tg-viewport-safe-area-inset-top, env(safe-area-inset-top, 0px)) + var(--tg-viewport-content-safe-area-inset-top, 0px)),
+        calc(env(safe-area-inset-top, 14px) + 42px)
+      );
     }
 
     * {
@@ -40,13 +44,13 @@
       padding-bottom: env(safe-area-inset-bottom, 16px);
     }
 
-    /* حل مشكلة الفول سكرين والآيفون Safe Area */
+    /* الشريط العلوي آمن تماماً أسفل علامة X Close الخاصة بتيليجرام */
     .top-bar {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: calc(12px + var(--safe-top)) 14px 12px 14px;
-      background: rgba(22, 31, 51, 0.92);
+      padding: calc(8px + var(--tg-top-pad)) 14px 12px 14px;
+      background: rgba(22, 31, 51, 0.94);
       backdrop-filter: blur(12px);
       border-bottom: 1px solid rgba(255,255,255,0.08);
       position: sticky;
@@ -241,19 +245,49 @@
       color: var(--accent);
     }
 
+    /* شريط فلاتر الغرف العامة */
+    .filter-pills-bar {
+      display: flex;
+      gap: 6px;
+      overflow-x: auto;
+      padding-bottom: 8px;
+      margin-bottom: 10px;
+      scrollbar-width: none;
+    }
+    .filter-pills-bar::-webkit-scrollbar { display: none; }
+
+    .filter-pill {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.12);
+      color: var(--text-muted);
+      padding: 5px 11px;
+      border-radius: 18px;
+      font-size: 0.78rem;
+      font-weight: 800;
+      white-space: nowrap;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    .filter-pill.active {
+      background: rgba(245, 158, 11, 0.2);
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
     .scoreboard {
       display: flex;
       gap: 8px;
       overflow-x: auto;
-      padding-bottom: 8px;
-      margin-bottom: 10px;
+      padding-bottom: 6px;
+      margin-bottom: 8px;
     }
 
     .player-pill {
       background: rgba(255,255,255,0.06);
-      padding: 6px 10px;
+      padding: 5px 10px;
       border-radius: 12px;
-      font-size: 0.82rem;
+      font-size: 0.8rem;
       font-weight: 700;
       white-space: nowrap;
       border: 1px solid rgba(255,255,255,0.1);
@@ -272,40 +306,97 @@
       cursor: pointer;
     }
 
+    /* شاشة العرض السينمائية بارتفاع ثابت تماماً حتى لا تتحرك الاختيارات أو الجرس أبداً */
     .cinema-screen {
       background: linear-gradient(180deg, #1e293b, #0f172a);
       border: 2px solid rgba(245, 158, 11, 0.35);
       border-radius: 20px;
-      padding: 16px 14px;
+      padding: 10px 12px;
       text-align: center;
       position: relative;
-      margin-bottom: 12px;
-      min-height: 210px;
+      margin-bottom: 10px;
+      height: 242px;
       display: flex;
       flex-direction: column;
-      justify-content: center;
+      justify-content: space-between;
+      overflow: hidden;
+    }
+
+    .cinema-header-info {
+      flex-shrink: 0;
     }
 
     .chapter-ribbon {
       background: rgba(245, 158, 11, 0.18);
       color: var(--accent);
       border: 1px solid rgba(245, 158, 11, 0.4);
-      padding: 3px 10px;
+      padding: 2px 10px;
       border-radius: 20px;
-      font-size: 0.76rem;
+      font-size: 0.73rem;
       font-weight: 800;
       display: inline-block;
-      margin: 0 auto 6px;
+      margin: 0 auto 2px;
+    }
+
+    .timer-ring {
+      font-size: 1.35rem;
+      font-weight: 900;
+      color: var(--accent);
+      line-height: 1.2;
+    }
+
+    /* حاوية التلميحات المتدرجة: التلميح الجديد يظهر بالأسفل ويدفع القديم للأعلى */
+    .clues-stack {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      gap: 5px;
+      overflow: hidden;
+      padding-top: 4px;
+    }
+
+    .clue-box {
+      background: rgba(255,255,255,0.06);
+      padding: 6px 10px;
+      border-radius: 11px;
+      font-size: 0.88rem;
+      font-weight: 700;
+      line-height: 1.35;
+      transition: all 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+      animation: slideUpClue 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    /* عندما يظهر تلميح جديد يصغر التلميح السابق قليلاً ويرتفع للأعلى */
+    .clue-box.pushed-up {
+      font-size: 0.78rem;
+      padding: 4px 8px;
+      opacity: 0.82;
+      background: rgba(255,255,255,0.035);
+    }
+
+    .clue-emoji {
+      font-size: 1.65rem;
+      letter-spacing: 3px;
+    }
+
+    .clue-emoji.pushed-up {
+      font-size: 1.2rem;
+    }
+
+    @keyframes slideUpClue {
+      from { opacity: 0; transform: translateY(18px); }
+      to { opacity: 1; transform: translateY(0); }
     }
 
     .director-banner {
       background: linear-gradient(135deg, #ef4444, #7f1d1d);
       color: #fff;
-      padding: 6px 12px;
+      padding: 5px 10px;
       border-radius: 10px;
-      font-size: 0.82rem;
+      font-size: 0.78rem;
       font-weight: 800;
-      margin-bottom: 8px;
+      margin-bottom: 6px;
       display: none;
       text-align: center;
       animation: pulse 1.2s infinite;
@@ -316,38 +407,16 @@
       50% { transform: scale(1.02); }
     }
 
-    .timer-ring {
-      font-size: 1.5rem;
-      font-weight: 900;
-      color: var(--accent);
-      margin-bottom: 6px;
-    }
-
-    .clue-box {
-      background: rgba(255,255,255,0.05);
-      padding: 9px 12px;
-      border-radius: 12px;
-      margin: 5px 0;
-      font-size: 0.96rem;
-      font-weight: 700;
-      animation: fadeIn 0.3s ease;
-    }
-
-    .clue-emoji {
-      font-size: 2rem;
-      letter-spacing: 3px;
-    }
-
     .buzzer-btn {
-      width: 145px;
-      height: 145px;
+      width: 140px;
+      height: 140px;
       border-radius: 50%;
       background: radial-gradient(circle at 30% 30%, #ff5f5f, #b91c1c);
       border: 7px solid #7f1d1d;
       color: #fff;
-      font-size: 1.2rem;
+      font-size: 1.15rem;
       font-weight: 900;
-      margin: 6px auto;
+      margin: 4px auto;
       cursor: pointer;
       box-shadow: 0 10px 25px rgba(239, 68, 68, 0.5), inset 0 4px 10px rgba(255,255,255,0.4);
       display: flex;
@@ -368,24 +437,24 @@
     .options-grid {
       display: grid;
       grid-template-columns: 1fr;
-      gap: 8px;
-      margin-top: 8px;
+      gap: 7px;
+      margin-top: 6px;
     }
 
     .powerups-bar {
       display: flex;
       gap: 8px;
       justify-content: center;
-      margin: 8px 0;
+      margin: 6px 0;
     }
 
     .powerup-btn {
       background: rgba(139, 92, 246, 0.18);
       border: 1px solid rgba(139, 92, 246, 0.5);
       color: #e2e8f0;
-      padding: 6px 12px;
+      padding: 5px 11px;
       border-radius: 12px;
-      font-size: 0.8rem;
+      font-size: 0.78rem;
       font-weight: 800;
       cursor: pointer;
       display: flex;
@@ -402,7 +471,7 @@
       display: flex;
       justify-content: center;
       gap: 10px;
-      margin-top: 10px;
+      margin-top: 8px;
       padding-top: 8px;
       border-top: 1px solid rgba(255,255,255,0.06);
     }
@@ -412,7 +481,7 @@
       border: 1px solid rgba(255,255,255,0.1);
       border-radius: 20px;
       padding: 5px 12px;
-      font-size: 0.9rem;
+      font-size: 0.88rem;
       cursor: pointer;
       color: #fff;
       font-weight: 700;
@@ -436,7 +505,7 @@
     /* إشعار الدعوة الفوري داخل اللعبة */
     .invite-toast {
       position: fixed;
-      top: calc(14px + var(--safe-top));
+      top: calc(10px + var(--tg-top-pad));
       left: 16px;
       right: 16px;
       max-width: 460px;
@@ -542,8 +611,8 @@
       background: rgba(245, 158, 11, 0.12);
       border: 1px dashed var(--accent);
       border-radius: 14px;
-      padding: 10px;
-      margin-bottom: 10px;
+      padding: 8px;
+      margin-bottom: 8px;
       text-align: center;
       display: none;
     }
@@ -618,9 +687,24 @@
       </button>
     </div>
 
-    <!-- الغرف العامة المفتوحة -->
+    <!-- الغرف العامة المفتوحة مع فلتر التصنيفات -->
     <div class="card">
-      <h4 style="color: var(--accent); margin-bottom: 8px;">🌍 غرف عامة مفتوحة الآن:</h4>
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+        <h4 style="color: var(--accent);">🌍 غرف عامة مفتوحة الآن:</h4>
+        <span style="font-size:0.72rem; color:var(--text-muted);">تُغلق بعد 4 د بدون بدء</span>
+      </div>
+
+      <!-- شريط الفلترة حسب فئة الأفلام -->
+      <div class="filter-pills-bar" id="publicRoomsFilterBar">
+        <div class="filter-pill active" data-filter="ALL" onclick="setPublicRoomsFilter('ALL', this)">الكل 🌍</div>
+        <div class="filter-pill" data-filter="EG" onclick="setPublicRoomsFilter('EG', this)">🇪🇬 مصرية</div>
+        <div class="filter-pill" data-filter="SA" onclick="setPublicRoomsFilter('SA', this)">🇸🇦 سعودية</div>
+        <div class="filter-pill" data-filter="KW" onclick="setPublicRoomsFilter('KW', this)">🇰🇼 خليجية</div>
+        <div class="filter-pill" data-filter="SY" onclick="setPublicRoomsFilter('SY', this)">🇸🇾 سورية</div>
+        <div class="filter-pill" data-filter="LB" onclick="setPublicRoomsFilter('LB', this)">🇱🇧 لبنانية</div>
+        <div class="filter-pill" data-filter="WORLD" onclick="setPublicRoomsFilter('WORLD', this)">🌍 عالمية</div>
+      </div>
+
       <div id="publicRoomsList" style="font-size: 0.85rem; color: var(--text-muted); text-align: center;">
         لا توجد غرف عامة حالياً.. افتح غرفتك واختار "عامة" ليلعب معك الجميع!
       </div>
@@ -641,7 +725,7 @@
   <div class="screen" id="setupRoomScreen">
     <div class="card">
       <h3>🌍 1. اختار نوع الأفلام والدراما:</h3>
-      <p style="font-size: 0.78rem; color: var(--text-muted);">تقدر تختار دولة واحدة أو أكتر مع بعض</p>
+      <p style="font-size: 0.78rem; color: var(--text-muted);">الأسئلة هتجيلك من الدول اللي هتحددها هنا فقط</p>
       
       <div class="categories-grid" id="categoriesContainer">
         <div class="cat-item selected" data-cat="EG" onclick="toggleCat(this)">🇪🇬 مصرية</div>
@@ -652,7 +736,14 @@
         <div class="cat-item" data-cat="WORLD" onclick="toggleCat(this)">🌍 عالمية</div>
       </div>
 
-      <h3 style="margin-bottom: 6px;">🎮 2. نظام اللعب (Game Mode):</h3>
+      <h3 style="margin-bottom: 6px;">🎯 2. مستوى الصعوبة (وقت التفكير):</h3>
+      <select id="difficultySelect" class="input-field" style="font-size: 0.92rem;">
+        <option value="easy">🍿 سهل (45 ثانية للجولة + 14 ثانية بعد الجرس)</option>
+        <option value="medium" selected>⚡ متوسط (30 ثانية للجولة + 10 ثواني بعد الجرس)</option>
+        <option value="hard">🔥 صعب - سريع (20 ثانية للجولة + 6 ثواني بعد الجرس)</option>
+      </select>
+
+      <h3 style="margin-bottom: 6px;">🎮 3. نظام اللعب (Game Mode):</h3>
       <select id="gameModeSelect" class="input-field" style="font-size: 0.92rem;">
         <option value="chapters" selected>🍿 سهرة التحدي الشامل (3 فصول + مفاجآت المخرج)</option>
         <option value="party">🎉 طور الحفلة (الكل بيجاوب بدون قفل الجرس)</option>
@@ -660,7 +751,7 @@
         <option value="race500">🎯 سباق الـ 500 نقطة (أول لاعب يوصل يكسب)</option>
       </select>
 
-      <h3 style="margin-bottom: 6px;">⏱️ 3. عدد الجولات:</h3>
+      <h3 style="margin-bottom: 6px;">⏱️ 4. عدد الجولات:</h3>
       <select id="roundsSelect" class="input-field" style="font-size: 0.95rem;">
         <option value="6">⚡ جيم سريع (6 جولات)</option>
         <option value="10" selected>🎬 سهرة قياسية (10 جولات)</option>
@@ -693,6 +784,10 @@
         <h1 id="lobbyRoomCode" style="font-size: 2.6rem; letter-spacing: 5px; color: var(--accent);">----</h1>
         <button class="btn btn-outline btn-sm" onclick="copyRoomCodeText()">📋 نسخ الكود</button>
       </div>
+      <div id="lobbyMetaBadges" style="font-size: 0.78rem; color: var(--accent); font-weight: 800; margin-bottom: 6px;"></div>
+      <div id="lobbyAutoCloseTimer" style="font-size: 0.76rem; color: var(--text-muted); margin-bottom: 8px;">
+        ⏳ تُغلق الغرفة تلقائياً خلال 04:00 إذا لم تبدأ
+      </div>
       <div style="display: flex; gap: 8px; margin-top: 8px;">
         <button class="btn btn-primary" style="margin: 0; flex: 1; font-size: 0.9rem;" onclick="inviteFriendsToRoom()">
           <span>📲</span> مشاركة بتيليجرام
@@ -711,16 +806,22 @@
     <button class="btn btn-success" id="hostStartGameBtn" style="display: none;" onclick="hostStartGame()">
       <span>🔥</span> ابدأ السهرة الآن!
     </button>
-    <p id="guestWaitingMsg" style="text-align: center; color: var(--text-muted); margin-top: 10px;">
+    <p id="guestWaitingMsg" style="text-align: center; color: var(--text-muted); margin-bottom: 10px;">
       في انتظار صاحب الغرفة يبدأ الجيم...
     </p>
+    <button class="btn btn-danger" style="margin-top: 4px;" onclick="leaveCurrentRoom()">
+      <span>🚪</span> الخروج من الغرفة
+    </button>
   </div>
 
   <!-- 4. شاشة اللعب والجرس اللحظي -->
   <div class="screen" id="gameScreen">
-    <div class="scoreboard" id="liveScoreboard"></div>
+    <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 4px;">
+      <div class="scoreboard" id="liveScoreboard" style="flex: 1; margin-bottom: 0;"></div>
+      <button class="btn btn-outline btn-sm" style="color: #fca5a5; border-color: rgba(239,68,68,0.35); flex-shrink: 0;" onclick="leaveCurrentRoom()">🚪 خروج</button>
+    </div>
 
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; font-size: 0.85rem; color: var(--text-muted);">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; font-size: 0.84rem; color: var(--text-muted);">
       <span id="roundCounterText">الجولة 1 / 10</span>
       <span id="currentPointsBadge" style="color: var(--accent); font-weight: 800;">جائزة المرحلة: 100 نقطة 🔥</span>
     </div>
@@ -730,7 +831,7 @@
 
     <!-- صندوق المزاد والرهان في الفصل الثالث -->
     <div class="wager-box" id="wagerBox">
-      <div style="font-size: 0.82rem; font-weight: 800; color: var(--accent); margin-bottom: 6px;">
+      <div style="font-size: 0.8rem; font-weight: 800; color: var(--accent); margin-bottom: 5px;">
         🎲 جولة المزاد والحسم! راهن بنقاطك قبل الإجابة:
       </div>
       <div style="display: flex; justify-content: center; gap: 8px;">
@@ -740,16 +841,22 @@
       </div>
     </div>
 
+    <!-- شاشة السينما الثابتة: التلميح الجديد يزق القديم لفوق ويظهر مكانه -->
     <div class="cinema-screen">
-      <div class="chapter-ribbon" id="chapterRibbon">🎬 الفصل الأول: لقطة وفزورة</div>
-      <div class="timer-ring" id="roundTimerDisplay">20</div>
-      <div id="questionPromptText" style="font-size: 0.85rem; color: #94a3b8; margin-bottom: 4px; font-weight: 700;">خمن اسم العمل من التلميحات:</div>
-      <div id="clue1Box" class="clue-box clue-emoji">🎬</div>
-      <div id="clue2Box" class="clue-box" style="display: none; color: #cbd5e1;"></div>
-      <div id="clue3Box" class="clue-box" style="display: none; color: var(--accent);"></div>
+      <div class="cinema-header-info">
+        <div class="chapter-ribbon" id="chapterRibbon">🎬 الفصل الأول: لقطة وفزورة</div>
+        <div class="timer-ring" id="roundTimerDisplay">30</div>
+        <div id="questionPromptText" style="font-size: 0.8rem; color: #94a3b8; font-weight: 700;">خمن اسم العمل من التلميحات:</div>
+      </div>
+
+      <div class="clues-stack" id="cluesStackContainer">
+        <div id="clue1Box" class="clue-box clue-emoji">🎬</div>
+        <div id="clue2Box" class="clue-box" style="display: none; color: #cbd5e1;"></div>
+        <div id="clue3Box" class="clue-box" style="display: none; color: var(--accent);"></div>
+      </div>
     </div>
 
-    <div id="buzzerStatusBanner" style="text-align: center; font-weight: 800; margin-bottom: 6px; min-height: 24px; color: var(--accent); font-size: 0.9rem;"></div>
+    <div id="buzzerStatusBanner" style="text-align: center; font-weight: 800; margin-bottom: 4px; min-height: 22px; color: var(--accent); font-size: 0.88rem;"></div>
 
     <!-- كروت المساعدة Power-Ups (مرة واحدة في الجيم) -->
     <div class="powerups-bar">
@@ -762,7 +869,7 @@
     </div>
 
     <button class="buzzer-btn" id="mainBuzzerBtn" onclick="pressBuzzer()">
-      <span style="font-size: 1.9rem;">🚨</span>
+      <span style="font-size: 1.8rem;">🚨</span>
       <span>عرفته!</span>
     </button>
 
@@ -787,7 +894,7 @@
       <button class="btn btn-success" id="rematchBtn" style="display: none;" onclick="hostRematchRoom()">
         <span>🔄</span> سهرة جديدة بنفس الشلة والغرفة! (1 🎟️)
       </button>
-      <button class="btn btn-accent" onclick="leaveRoomAndGoHome()">العودة للرئيسية</button>
+      <button class="btn btn-accent" onclick="leaveCurrentRoom()">العودة للرئيسية</button>
     </div>
   </div>
 
@@ -906,15 +1013,15 @@
         <div style="font-size: 3rem; margin: 10px 0;">🎬 ⬅️ 💬 ⬅️ 🌟</div>
         <h4 style="margin-bottom: 6px;">1. ثلاث تلميحات تدريجية</h4>
         <p style="font-size: 0.88rem; color: var(--text-muted); line-height: 1.6;">
-          كل جولة مدتها 20 ثانية.. بيظهر إيموجي للعمل الأول (بـ <b>100 نقطة</b>)، وبعدين إفيه شهير (بـ <b>70 نقطة</b>)، وأخيراً الأبطال (بـ <b>40 نقطة</b>). كل ما تلقطها بدري، نقاطك أعلى!
+          بيظهر إيموجي للعمل الأول (بـ <b>100 نقطة</b>)، وبعدين التلميح الثاني يزقه لفوق ويظهر مكانه (بـ <b>70 نقطة</b>)، وأخيراً الأبطال (بـ <b>40 نقطة</b>). كل ما تلقطها بدري، نقاطك أعلى!
         </p>
       </div>
 
       <div id="tutStep2" class="tut-step" style="display: none;">
         <div style="font-size: 3rem; margin: 10px 0;">🚨 ⚡</div>
-        <h4 style="margin-bottom: 6px;">2. سرعة الجرس والـ 3 فصول</h4>
+        <h4 style="margin-bottom: 6px;">2. سرعة الجرس ومستويات الصعوبة</h4>
         <p style="font-size: 0.88rem; color: var(--text-muted); line-height: 1.6;">
-          أول ما تعرف الإجابة، دوس زر <b>"عرفته!"</b> عشان تقفل الجرس على صحابك وتختار من 4 إجابات في 6 ثواني! السهرة فيها 3 فصول متنوعة وكروت مفاجآت المخرج.
+          أول ما تعرف الإجابة، دوس زر <b>"عرفته!"</b> عشان تقفل الجرس على صحابك وتختار من 4 إجابات! تقدر تختار مستوى الصعوبة (سهل / متوسط / صعب) لزيادة وقت التفكير.
         </p>
       </div>
 
@@ -950,6 +1057,22 @@
     const BOT_USERNAME = "aflam_game_bot";
     const INSTAPAY_DETAILS = "01064829916";
     const ADMIN_TELEGRAM_USERNAME = "dr_amr_osama";
+    const ROOM_WAITING_TIMEOUT_MS = 240000; // 4 دقائق كحد أقصى للغرفة التي لم تبدأ
+
+    const CATEGORY_LABELS = {
+      EG: "🇪🇬 مصرية",
+      SA: "🇸🇦 سعودية",
+      KW: "🇰🇼 خليجية",
+      SY: "🇸🇾 سورية",
+      LB: "🇱🇧 لبنانية",
+      WORLD: "🌍 عالمية"
+    };
+
+    const DIFFICULTY_CONFIG = {
+      easy:   { label: "🍿 سهل",   roundSec: 45, clue2At: 15, clue3At: 30, buzzerSec: 14, camoSec: 8, bonusSec: 12 },
+      medium: { label: "⚡ متوسط", roundSec: 30, clue2At: 10, clue3At: 20, buzzerSec: 10, camoSec: 6, bonusSec: 8 },
+      hard:   { label: "🔥 صعب",   roundSec: 20, clue2At: 6,  clue3At: 13, buzzerSec: 6,  camoSec: 4, bonusSec: 5 }
+    };
 
     document.getElementById("merchantPaymentAddress").innerText = INSTAPAY_DETAILS;
 
@@ -962,7 +1085,7 @@
     }
 
     // ==========================================
-    // 1. محرك المؤثرات الصوتية الذكي (Web Audio API - Zero Latency)
+    // 1. محرك المؤثرات الصوتية الذكي (Web Audio API)
     // ==========================================
     let soundMuted = localStorage.getItem("sahra_muted") === "true";
     let audioCtx = null;
@@ -1053,6 +1176,7 @@
     let roomState = null;
     let localTimerInterval = null;
     let buzzerTimerInterval = null;
+    let lobbyExpiryInterval = null;
     let lockedOutThisRound = false;
     let lastLoadedRound = -1;
     let lastBuzzerState = false;
@@ -1061,11 +1185,15 @@
     let lastReactionTimestamp = 0;
     let roomUnsubscribe = null;
     let isAdvancingRound = false;
+    let isLeavingIntentionally = false;
     let allUsersCache = {};
     let myFriendsMap = {};
     let cachedMoviePool = [];
+    let cachedPoolKey = "";
     let secretTapCount = 0;
     let selectedTransferMethod = "إنستا باي InstaPay";
+    let currentPublicFilter = "ALL";
+    let latestRoomsSnapshot = {};
 
     // متغيرات كروت المساعدة والمزاد لكل جيم
     let used5050InGame = false;
@@ -1086,7 +1214,15 @@
       return "🍿 مشاهد جديد";
     }
 
-    // استخراج كود الغرفة وكود الإحالة بدقة 100% باستخدام Regex
+    function getDiffSettings(diffKey) {
+      return DIFFICULTY_CONFIG[diffKey] || DIFFICULTY_CONFIG.medium;
+    }
+
+    function formatCategoryBadges(cats) {
+      if (!cats || !Array.isArray(cats) || cats.length === 0) return "🇪🇬 مصرية";
+      return cats.map(c => CATEGORY_LABELS[c] || c).join(" • ");
+    }
+
     function extractStartParameters() {
       const tgParam = tg?.initDataUnsafe?.start_param || "";
       const urlParams = new URLSearchParams(window.location.search);
@@ -1145,14 +1281,12 @@
           rewardGivenToInviter: validInviter ? true : false
         });
 
-        // مكافأة التذكرة الفورية للداعي بمجرد فتح الصديق للعبة لأول مرة!
         if (validInviter) {
           let newInviterBal = 3;
           await runTransaction(ref(db, `users/${validInviter}/tickets`), (cur) => {
             newInviterBal = (cur ?? 2) + 1;
             return newInviterBal;
           });
-          // إضافة بعضهم كأصدقاء تلقائياً
           await set(ref(db, `users/${validInviter}/friends/${currentUser.id}`), { name: currentUser.name, addedAt: Date.now() });
           await set(ref(db, `users/${currentUser.id}/friends/${validInviter}`), { name: "صديقك الداعي", addedAt: Date.now() });
 
@@ -1168,7 +1302,6 @@
           }).catch(() => {});
         }
 
-        // فتح الشرح التفاعلي تلقائياً للاعب الجديد
         if (!localStorage.getItem("sahra_tut_seen")) {
           openTutorialModal();
         }
@@ -1186,7 +1319,6 @@
       document.getElementById("userRankDisplay").innerText = getPlayerRankTitle(currentUser.gamesPlayed);
       await set(ref(db, `dailyStats/${today}/activeUsers/${currentUser.id}`), true);
 
-      // متابعة التذاكر والألقاب
       onValue(ref(db, `users/${currentUser.id}`), (uSnap) => {
         if (uSnap.exists()) {
           const u = uSnap.val();
@@ -1199,7 +1331,6 @@
         }
       });
 
-      // الاستماع للدعوات الفورية داخل اللعبة (Popup Toast)
       onValue(ref(db, `users/${currentUser.id}/incomingInvite`), (invSnap) => {
         if (!invSnap.exists()) return;
         const inv = invSnap.val();
@@ -1217,7 +1348,6 @@
         }
       });
 
-      // الاستماع للغرف العامة المتاحة
       listenToPublicRooms();
 
       if (autoJoinRoom) {
@@ -1266,7 +1396,7 @@
     }
 
     // ==========================================
-    // 4. نظام الأصدقاء والدعوة المباشرة + الغرف العامة
+    // 4. الأصدقاء + الغرف العامة المفلترة + الحذف التلقائي بعد 4 دقائق
     // ==========================================
     window.addPlayerAsFriend = async (targetUid, targetName) => {
       if (!targetUid || targetUid === currentUser.id) return;
@@ -1328,7 +1458,6 @@
         return;
       }
       SoundEngine.pop();
-      // 1. إرسال إشعار فوري داخل اللعبة لو فاتحها
       await set(ref(db, `users/${friendId}/incomingInvite`), {
         roomCode: currentRoomCode,
         fromId: currentUser.id,
@@ -1336,7 +1465,6 @@
         sentAt: Date.now()
       });
 
-      // 2. إرسال رسالة خاصة عبر البوت من خلال Google Apps Script لو قافل اللعبة
       fetch(GOOGLE_SCRIPT_URL, {
         method: "POST",
         headers: { "Content-Type": "text/plain;charset=utf-8" },
@@ -1352,35 +1480,84 @@
       alert(`✅ تم إرسال دعوة فورية لصديقك (${friendName}) لدخول غرفة رقم ${currentRoomCode}!`);
     };
 
+    window.setPublicRoomsFilter = (filterCat, el) => {
+      SoundEngine.pop();
+      currentPublicFilter = filterCat;
+      document.querySelectorAll("#publicRoomsFilterBar .filter-pill").forEach(p => p.classList.remove("active"));
+      if (el) el.classList.add("active");
+      renderPublicRoomsList();
+    };
+
     function listenToPublicRooms() {
       onValue(ref(db, "rooms"), (snap) => {
-        const container = document.getElementById("publicRoomsList");
-        if (!container) return;
-        const rooms = snap.val() || {};
-        const publicList = Object.entries(rooms)
-          .filter(([code, r]) => r.isPublic && r.status === "waiting" && (Date.now() - (r.createdAt || 0) < 1800000))
-          .map(([code, r]) => ({
-            code,
-            hostName: r.players?.[r.hostId]?.name || "لاعب",
-            count: Object.keys(r.players || {}).length,
-            mode: r.gameMode || "chapters"
-          }));
+        latestRoomsSnapshot = snap.val() || {};
+        renderPublicRoomsList();
+      });
 
-        if (publicList.length === 0) {
-          container.innerHTML = `لا توجد غرف عامة منتظرة حالياً.. افتح غرفتك وفعّل "غرفة عامة 🌍"!`;
+      // فحص دوري كل 15 ثانية لتنظيف الغرف المنتظرة التي تجاوزت 4 دقائق
+      setInterval(() => {
+        renderPublicRoomsList();
+      }, 15000);
+    }
+
+    function renderPublicRoomsList() {
+      const container = document.getElementById("publicRoomsList");
+      if (!container) return;
+
+      const now = Date.now();
+      const publicList = [];
+
+      Object.entries(latestRoomsSnapshot).forEach(([code, r]) => {
+        if (!r) return;
+        const ageMs = now - (r.createdAt || 0);
+
+        // حذف الغرف المنتظرة التي مر عليها أكثر من 4 دقائق بدون بدء
+        if (r.status === "waiting" && ageMs >= ROOM_WAITING_TIMEOUT_MS) {
+          remove(ref(db, `rooms/${code}`)).catch(() => {});
           return;
         }
 
-        container.innerHTML = publicList.map(rm => `
-          <div class="user-row" style="margin-bottom:6px;">
-            <div style="text-align:right;">
-              <div style="font-weight:800; color:#fff; font-size:0.86rem;">🎬 غرفة ${rm.hostName} (#${rm.code})</div>
-              <div style="font-size:0.74rem; color:var(--accent);">👥 ${rm.count} لاعبين بالانتظار</div>
-            </div>
-            <button class="btn btn-primary btn-sm" onclick="quickJoinRoom('${rm.code}')">دخول 🚀</button>
-          </div>
-        `).join("");
+        if (r.isPublic && r.status === "waiting" && ageMs < ROOM_WAITING_TIMEOUT_MS) {
+          const roomCats = Array.isArray(r.categories) && r.categories.length > 0 ? r.categories : ["EG"];
+          if (currentPublicFilter !== "ALL" && !roomCats.includes(currentPublicFilter)) {
+            return;
+          }
+
+          const remSec = Math.max(0, Math.ceil((ROOM_WAITING_TIMEOUT_MS - ageMs) / 1000));
+          const mins = String(Math.floor(remSec / 60)).padStart(2, "0");
+          const secs = String(remSec % 60).padStart(2, "0");
+
+          publicList.push({
+            code,
+            hostName: r.players?.[r.hostId]?.name || "لاعب سينمائي",
+            count: Object.keys(r.players || {}).length,
+            catsText: formatCategoryBadges(roomCats),
+            diffText: getDiffSettings(r.difficulty).label,
+            timeLeft: `${mins}:${secs}`
+          });
+        }
       });
+
+      if (publicList.length === 0) {
+        const filterName = currentPublicFilter === "ALL" ? "" : ` (${CATEGORY_LABELS[currentPublicFilter] || currentPublicFilter})`;
+        container.innerHTML = `لا توجد غرف عامة منتظرة حالياً${filterName}.. افتح غرفتك وفعّل "غرفة عامة 🌍"!`;
+        return;
+      }
+
+      container.innerHTML = publicList.map(rm => `
+        <div class="user-row" style="margin-bottom:6px;">
+          <div style="text-align:right;">
+            <div style="font-weight:800; color:#fff; font-size:0.86rem;">🎬 غرفة ${rm.hostName} (#${rm.code})</div>
+            <div style="font-size:0.73rem; color:var(--accent); margin-top:2px;">
+              ${rm.catsText} • ${rm.diffText}
+            </div>
+            <div style="font-size:0.71rem; color:var(--text-muted);">
+              👥 ${rm.count} بالانتظار • ⏳ تقفل خلال ${rm.timeLeft}
+            </div>
+          </div>
+          <button class="btn btn-primary btn-sm" onclick="quickJoinRoom('${rm.code}')">دخول 🚀</button>
+        </div>
+      `).join("");
     }
 
     window.quickJoinRoom = (code) => {
@@ -1389,7 +1566,7 @@
     };
 
     // ==========================================
-    // 5. خوارزمية الخلط العشوائي الكامل (Fisher-Yates) وتوليد الفصول الـ 3
+    // 5. خوارزمية الخلط العشوائي وتوليد الفصول الـ 3
     // ==========================================
     function fisherYatesShuffle(arr) {
       const copy = [...arr];
@@ -1432,13 +1609,12 @@
         let correctAns = movie.answer;
         let opts = fisherYatesShuffle(movie.options || [movie.answer]);
 
-        // تقسيم الجيم إلى 3 فصول في طور التحدي الشامل
         if (gameMode === "chapters") {
           if (idx >= total - 2 && total >= 5) {
-            chapter = 3; // الفصل الثالث: المزاد والحسم
+            chapter = 3;
             promptText = "🎲 جولة المزاد والحسم: خمن اسم العمل!";
           } else if (idx >= Math.floor(total * 0.4) && idx < total - 2) {
-            chapter = 2; // الفصل الثاني: اعكس الآية!
+            chapter = 2;
             const askActors = (idx % 2 === 0);
             c1 = `🎬 ${movie.answer}`;
             if (askActors) {
@@ -1459,13 +1635,11 @@
           }
         }
 
-        // كارت مفاجأة المخرج كل 3 جولات
         let surpriseCard = "";
         if (gameMode === "chapters" && (idx + 1) % 3 === 0 && chapter !== 3) {
           surpriseCard = directorCards[Math.floor(Math.random() * directorCards.length)];
         }
 
-        // تحضير سؤال البونص الفوري (+30 نقطة) لنفس الفيلم
         const bonusWrongActors = fisherYatesShuffle(allActorsPool.filter(a => a !== movie.clue3)).slice(0, 3);
         const bonusOptions = fisherYatesShuffle([movie.clue3, ...bonusWrongActors]);
 
@@ -1487,7 +1661,7 @@
     }
 
     // ==========================================
-    // 6. إنشاء الغرف والانضمام وإدارة الجولات
+    // 6. إنشاء الغرف والانضمام والخروج والعداد التلقائي (4 دقائق)
     // ==========================================
     window.handleAvatarSecretTap = () => {
       secretTapCount++;
@@ -1522,6 +1696,7 @@
       const selectedCats = Array.from(document.querySelectorAll(".cat-item.selected")).map(el => el.dataset.cat);
       if (selectedCats.length === 0) return alert("اختار تصنيف أفلام واحد على الأقل!");
 
+      const difficulty = document.getElementById("difficultySelect").value || "medium";
       const roundsCount = parseInt(document.getElementById("roundsSelect").value);
       const gameMode = document.getElementById("gameModeSelect").value;
       const enableBonus = document.getElementById("enableBonusToggle").checked;
@@ -1529,20 +1704,21 @@
 
       const btn = document.getElementById("createRoomBtn");
       btn.disabled = true;
-      btn.innerText = "⏳ جاري خلط الـ 1000 سؤال وتجهيز السهرة...";
+      btn.innerText = "⏳ جاري تجهيز أسئلة الفئة المختارة...";
 
       try {
-        // سحب بنك الأسئلة بالكامل (limit=1000) لخلطه عشوائياً ومنع التكرار
-        const res = await fetch(`${GOOGLE_SCRIPT_URL}?action=getMovies&category=${selectedCats.join(",")}&limit=1000`);
+        const catsQuery = selectedCats.join(",");
+        const res = await fetch(`${GOOGLE_SCRIPT_URL}?action=getMovies&category=${encodeURIComponent(catsQuery)}&limit=1000`);
         const data = await res.json();
         const rawMovies = data.movies || [];
 
         if (rawMovies.length === 0) {
-          alert("تأكد من إضافة أفلام في شيت جوجل داخل ورقة Movies_Bank!");
+          alert("لا توجد أفلام مسجلة لهذه الفئة حالياً في شيت Movies_Bank!");
           return;
         }
 
         cachedMoviePool = rawMovies;
+        cachedPoolKey = catsQuery;
         const preparedRounds = buildSmartGameRounds(rawMovies, roundsCount, gameMode);
 
         const roomCode = String(Math.floor(1000 + Math.random() * 9000));
@@ -1555,12 +1731,14 @@
           createdAt: Date.now(),
           status: "waiting",
           isPublic: isPublic,
+          categories: selectedCats,
+          difficulty: difficulty,
           gameMode: gameMode,
           enableBonus: enableBonus,
           roundsCount: roundsCount,
           currentRound: 0,
           roundStartTime: 0,
-          phase: "main", // main | bonus
+          phase: "main",
           buzzerLocked: false,
           buzzerLockedAt: 0,
           buzzerWinnerId: "",
@@ -1601,19 +1779,103 @@
       const snap = await get(roomRef);
       if (!snap.exists()) return alert("❌ رقم الغرفة غير صحيح أو الغرفة قفلت!");
 
+      const rVal = snap.val();
+      if (rVal.status === "waiting" && (Date.now() - (rVal.createdAt || 0) >= ROOM_WAITING_TIMEOUT_MS)) {
+        await remove(roomRef);
+        return alert("⏰ هذه الغرفة انتهت مهلة انتظارها (4 دقائق) وتم إغلاقها تلقائياً.");
+      }
+
       currentRoomCode = code;
-      isHost = (snap.val().hostId === currentUser.id);
+      isHost = (rVal.hostId === currentUser.id);
 
       await update(ref(db, `rooms/${code}/players/${currentUser.id}`), {
         name: currentUser.name,
-        score: snap.val().players?.[currentUser.id]?.score || 0,
+        score: rVal.players?.[currentUser.id]?.score || 0,
         rank: getPlayerRankTitle(currentUser.gamesPlayed),
-        eliminated: snap.val().players?.[currentUser.id]?.eliminated || false
+        eliminated: rVal.players?.[currentUser.id]?.eliminated || false
       });
 
       subscribeToRoom(code);
       showScreen("lobbyScreen");
     };
+
+    // دالة الخروج السلس من الغرفة (العامة أو الخاصة) في أي وقت
+    window.leaveCurrentRoom = async () => {
+      SoundEngine.pop();
+      const codeToLeave = currentRoomCode;
+      const wasHost = isHost;
+      const currentStatus = roomState?.status;
+
+      isLeavingIntentionally = true;
+      if (roomUnsubscribe) {
+        roomUnsubscribe();
+        roomUnsubscribe = null;
+      }
+      clearInterval(localTimerInterval);
+      clearInterval(buzzerTimerInterval);
+      clearInterval(lobbyExpiryInterval);
+
+      currentRoomCode = null;
+      roomState = null;
+      isHost = false;
+      showScreen("homeScreen");
+
+      if (codeToLeave) {
+        try {
+          if (wasHost && currentStatus === "waiting") {
+            // إذا خرج صاحب الغرفة قبل البدء، تُغلق الغرفة فوراً حتى لا تبقى معلقة
+            await remove(ref(db, `rooms/${codeToLeave}`));
+          } else {
+            await remove(ref(db, `rooms/${codeToLeave}/players/${currentUser.id}`));
+            const pSnap = await get(ref(db, `rooms/${codeToLeave}/players`));
+            if (!pSnap.exists() || Object.keys(pSnap.val() || {}).length === 0) {
+              await remove(ref(db, `rooms/${codeToLeave}`));
+            }
+          }
+        } catch (e) {}
+      }
+      isLeavingIntentionally = false;
+    };
+
+    function startLobbyExpiryCountdown(createdAtMs) {
+      clearInterval(lobbyExpiryInterval);
+      const timerEl = document.getElementById("lobbyAutoCloseTimer");
+
+      const updateClock = async () => {
+        if (!currentRoomCode || !roomState || roomState.status !== "waiting") {
+          clearInterval(lobbyExpiryInterval);
+          return;
+        }
+        const elapsed = Date.now() - (createdAtMs || Date.now());
+        const remainingMs = Math.max(0, ROOM_WAITING_TIMEOUT_MS - elapsed);
+        const totalSec = Math.ceil(remainingMs / 1000);
+        const mins = String(Math.floor(totalSec / 60)).padStart(2, "0");
+        const secs = String(totalSec % 60).padStart(2, "0");
+
+        if (timerEl) {
+          timerEl.innerText = `⏳ تُغلق الغرفة تلقائياً خلال ${mins}:${secs} إذا لم تبدأ`;
+        }
+
+        if (remainingMs <= 0) {
+          clearInterval(lobbyExpiryInterval);
+          const expiredCode = currentRoomCode;
+          isLeavingIntentionally = true;
+          if (roomUnsubscribe) {
+            roomUnsubscribe();
+            roomUnsubscribe = null;
+          }
+          currentRoomCode = null;
+          roomState = null;
+          await remove(ref(db, `rooms/${expiredCode}`)).catch(() => {});
+          alert("⏰ مرت 4 دقائق دون بدء اللعب، تم إغلاق الغرفة تلقائياً.");
+          showScreen("homeScreen");
+          isLeavingIntentionally = false;
+        }
+      };
+
+      updateClock();
+      lobbyExpiryInterval = setInterval(updateClock, 1000);
+    }
 
     function subscribeToRoom(code) {
       if (roomUnsubscribe) roomUnsubscribe();
@@ -1624,15 +1886,25 @@
         if (!snap.exists()) {
           clearInterval(localTimerInterval);
           clearInterval(buzzerTimerInterval);
-          alert("انتهت الغرفة!");
+          clearInterval(lobbyExpiryInterval);
+          currentRoomCode = null;
+          roomState = null;
+          if (!isLeavingIntentionally) {
+            alert("تم إغلاق الغرفة أو انتهت السهرة!");
+          }
           showScreen("homeScreen");
           return;
         }
 
         roomState = snap.val();
+        isHost = (roomState.hostId === currentUser.id);
         renderLobbyPlayers(roomState.players || {});
 
-        // تشغيل الريأكشن الطائر لو فيه تفاعل جديد
+        const metaEl = document.getElementById("lobbyMetaBadges");
+        if (metaEl) {
+          metaEl.innerText = `${formatCategoryBadges(roomState.categories)} • ${getDiffSettings(roomState.difficulty).label}`;
+        }
+
         if (roomState.lastReaction && roomState.lastReaction.time > lastReactionTimestamp) {
           lastReactionTimestamp = roomState.lastReaction.time;
           spawnFlyingEmoji(roomState.lastReaction.emoji, roomState.lastReaction.sender);
@@ -1642,14 +1914,17 @@
           showScreen("lobbyScreen");
           document.getElementById("hostStartGameBtn").style.display = isHost ? "flex" : "none";
           document.getElementById("guestWaitingMsg").style.display = isHost ? "none" : "block";
+          startLobbyExpiryCountdown(roomState.createdAt);
         } 
         else if (roomState.status === "playing") {
+          clearInterval(lobbyExpiryInterval);
           showScreen("gameScreen");
           handleGameUpdate(roomState);
         } 
         else if (roomState.status === "finished") {
           clearInterval(localTimerInterval);
           clearInterval(buzzerTimerInterval);
+          clearInterval(lobbyExpiryInterval);
           renderFinalLeaderboard(roomState.players || {});
           document.getElementById("rematchBtn").style.display = isHost ? "flex" : "none";
           recordGamePlayed();
@@ -1675,7 +1950,6 @@
       if (!isHost) return;
       if (currentUser.tickets < 1) return openStoreModal();
 
-      // لو اللاعب أول مرة يلعب، نعرضله الشرح التفاعلي السريع
       if (currentUser.gamesPlayed === 0 && !localStorage.getItem("sahra_tut_seen")) {
         openTutorialModal();
       }
@@ -1713,7 +1987,7 @@
       document.getElementById("powerShieldBtn").innerText = "🛡️ درع الحماية";
     }
 
-    // زر سهرة جديدة بنفس الغرفة والشلة (Rematch)
+    // سهرة جديدة بنفس الغرفة مع الالتزام التام بنفس الفئة المختارة (ممنوع خلط الفئات)
     window.hostRematchRoom = async () => {
       if (!isHost || !roomState) return;
       if (currentUser.tickets < 1) {
@@ -1726,14 +2000,18 @@
 
       const roundsCount = roomState.roundsCount || 10;
       const gameMode = roomState.gameMode || "chapters";
-      let newMovies = [];
+      const roomCatsQuery = (Array.isArray(roomState.categories) && roomState.categories.length > 0)
+        ? roomState.categories.join(",")
+        : "EG";
 
-      if (cachedMoviePool.length >= roundsCount) {
+      let newMovies = [];
+      if (cachedMoviePool.length >= roundsCount && cachedPoolKey === roomCatsQuery) {
         newMovies = buildSmartGameRounds(cachedMoviePool, roundsCount, gameMode);
       } else {
-        const res = await fetch(`${GOOGLE_SCRIPT_URL}?action=getMovies&category=ALL&limit=1000`);
+        const res = await fetch(`${GOOGLE_SCRIPT_URL}?action=getMovies&category=${encodeURIComponent(roomCatsQuery)}&limit=1000`);
         const data = await res.json();
         cachedMoviePool = data.movies || [];
+        cachedPoolKey = roomCatsQuery;
         newMovies = buildSmartGameRounds(cachedMoviePool, roundsCount, gameMode);
       }
 
@@ -1761,15 +2039,35 @@
       });
     };
 
-    window.leaveRoomAndGoHome = () => {
-      if (roomUnsubscribe) roomUnsubscribe();
-      currentRoomCode = null;
-      showScreen("homeScreen");
-    };
+    // ==========================================
+    // 7. إدارة شاشة اللعب، حركة التلميحات، ومستويات الصعوبة
+    // ==========================================
+    function applyClueStackVisuals(stage) {
+      const c1 = document.getElementById("clue1Box");
+      const c2 = document.getElementById("clue2Box");
+      const c3 = document.getElementById("clue3Box");
 
-    // ==========================================
-    // 7. إدارة شاشة اللعب، الجرس، الفصول، والـ Power-ups
-    // ==========================================
+      if (stage === 1) {
+        c1.style.display = "block";
+        c1.classList.remove("pushed-up");
+        c2.style.display = "none";
+        c2.classList.remove("pushed-up");
+        c3.style.display = "none";
+      } else if (stage === 2) {
+        c1.style.display = "block";
+        c1.classList.add("pushed-up"); // التلميح الأول يرتفع للأعلى ويصغر قليلاً
+        c2.style.display = "block";
+        c2.classList.remove("pushed-up"); // التلميح الثاني يظهر في المكان الرئيسي بالأسفل
+        c3.style.display = "none";
+      } else {
+        c1.style.display = "block";
+        c1.classList.add("pushed-up");
+        c2.style.display = "block";
+        c2.classList.add("pushed-up"); // التلميح الثاني يرتفع للأعلى
+        c3.style.display = "block";    // التلميح الثالث يظهر في المكان الرئيسي بالأسفل
+      }
+    }
+
     function handleGameUpdate(state) {
       const playersEntries = Object.entries(state.players || {}).sort((a,b) => b[1].score - a[1].score);
       document.getElementById("liveScoreboard").innerHTML = playersEntries.map(([uid, p]) => `
@@ -1779,7 +2077,6 @@
         </div>
       `).join("");
 
-      // التحقق من فوز سباق الـ 500 نقطة
       if (isHost && state.gameMode === "race500") {
         const winner500 = playersEntries.find(([_, p]) => p.score >= 500);
         if (winner500) {
@@ -1792,7 +2089,8 @@
       const movie = state.movies?.[roundIdx];
       if (!movie) return;
 
-      // بداية جولة جديدة
+      const diff = getDiffSettings(state.difficulty);
+
       if (lastLoadedRound !== roundIdx) {
         lastLoadedRound = roundIdx;
         lockedOutThisRound = false;
@@ -1802,6 +2100,7 @@
         currentRoundWager = 0;
         lastClueStage = 1;
         lastTickSecond = -1;
+        applyClueStackVisuals(1);
         SoundEngine.clue();
 
         if (!used5050InGame) document.getElementById("power5050Btn").disabled = false;
@@ -1811,7 +2110,6 @@
         }
       }
 
-      // مؤثرات صوتية عند قفل أو إعادة فتح الجرس لباقي اللاعبين
       if (state.buzzerLocked && !lastBuzzerState) {
         SoundEngine.buzzerHit();
         if (tg?.HapticFeedback) tg.HapticFeedback.impactOccurred("heavy");
@@ -1832,8 +2130,7 @@
         return;
       }
 
-      // عرض معلومات الفصل وكارت مفاجأة المخرج
-      document.getElementById("roundCounterText").innerText = `الجولة ${roundIdx + 1} / ${state.movies.length}`;
+      document.getElementById("roundCounterText").innerText = `الجولة ${roundIdx + 1} / ${state.movies.length} (${diff.label})`;
       const ribbon = document.getElementById("chapterRibbon");
       if (state.phase === "bonus") {
         ribbon.innerText = "⚡ تحدي البونص السريع (+30 نقطة)";
@@ -1845,7 +2142,6 @@
         ribbon.innerText = "🎬 الفصل الأول: لقطة وفزورة";
       }
 
-      // إظهار صندوق المزاد في الفصل الثالث
       const wagerBox = document.getElementById("wagerBox");
       if (movie.chapter === 3 && state.phase === "main" && !state.buzzerLocked) {
         wagerBox.style.display = "block";
@@ -1853,14 +2149,13 @@
         wagerBox.style.display = "none";
       }
 
-      // كارت مفاجأة المخرج
       const dirBanner = document.getElementById("directorSurpriseBanner");
       if (movie.surpriseCard && state.phase === "main") {
         dirBanner.style.display = "block";
         const cardTexts = {
           bomb: "💣 مفاجأة المخرج (جولة القنبلة): الصح بـ +150 نقطة والغلط بـ -60 نقطة!",
           silence: "🤫 مفاجأة المخرج (الصمت السينمائي): إيموجي فقط بدون تلميحات إضافية!",
-          camouflage: "🕵️‍♂️ مفاجأة المخرج (جولة التمويه): وقت الإجابة 4 ثواني فقط بعد الجرس!",
+          camouflage: `🕵️‍♂️ مفاجأة المخرج (جولة التمويه): وقت الإجابة ${diff.camoSec} ثواني فقط بعد الجرس!`,
           robinhood: "🏹 مفاجأة المخرج (روبن هود): أفضلية 3 ثواني للمركز الأخير في بداية الجولة!"
         };
         dirBanner.innerText = cardTexts[movie.surpriseCard] || "";
@@ -1868,9 +2163,8 @@
         dirBanner.style.display = "none";
       }
 
-      // لو إحنا في مرحلة سؤال البونص السريع (5 ثواني)
       if (state.phase === "bonus") {
-        renderBonusPhase(state, movie);
+        renderBonusPhase(state, movie, diff);
         return;
       }
 
@@ -1883,7 +2177,6 @@
       const optionsBox = document.getElementById("optionsContainer");
       const statusBanner = document.getElementById("buzzerStatusBanner");
 
-      // طور الحفلة (الكل بيجاوب بدون قفل الجرس)
       if (state.gameMode === "party") {
         buzzerBtn.style.display = "none";
         if (partyAnsweredThisRound || (state.partyAnswers && state.partyAnswers[currentUser.id])) {
@@ -1891,25 +2184,24 @@
           statusBanner.innerText = "✅ تم تسجيل إجابتك! في انتظار باقي الشلة...";
         } else {
           optionsBox.style.display = "grid";
-          renderAnswerButtons(movie.options, movie.answer);
+          renderAnswerButtons(movie.options);
           statusBanner.innerText = "🎉 طور الحفلة: اختار إجابتك بسرعة قبل ما الوقت يقل!";
         }
-        startSynchronizedTimer(state);
+        startSynchronizedTimer(state, diff);
         return;
       }
 
-      // الطور القياسي بالجرس
       if (state.buzzerLocked) {
         clearInterval(localTimerInterval);
         buzzerBtn.style.display = "none";
 
         if (state.buzzerWinnerId === currentUser.id) {
           optionsBox.style.display = "grid";
-          renderAnswerButtons(movie.options, movie.answer);
+          renderAnswerButtons(movie.options);
         } else {
           optionsBox.style.display = "none";
         }
-        startBuzzerCountdown(state, movie);
+        startBuzzerCountdown(state, movie, diff);
       } else {
         clearInterval(buzzerTimerInterval);
         optionsBox.style.display = "none";
@@ -1920,26 +2212,31 @@
         } else {
           statusBanner.innerText = lockedOutThisRound ? "❌ جاوبت غلط في الجولة دي، انتظر لو صاحبك غلط!" : "";
         }
-        startSynchronizedTimer(state);
+        startSynchronizedTimer(state, diff);
       }
     }
 
-    function renderAnswerButtons(optionsList, correctAns) {
+    function renderAnswerButtons(optionsList) {
       const optionsBox = document.getElementById("optionsContainer");
       optionsBox.innerHTML = optionsList.map(opt => `
         <button class="btn btn-primary ans-opt-btn" data-opt="${opt.replace(/"/g, '&quot;')}" onclick="submitMovieAnswer('${opt.replace(/'/g, "\\'")}')">${opt}</button>
       `).join("");
     }
 
-    // مرحلة سؤال البونص الفوري (5 ثواني بـ 30 نقطة)
-    function renderBonusPhase(state, movie) {
+    function renderBonusPhase(state, movie, diff) {
       clearInterval(buzzerTimerInterval);
       clearInterval(localTimerInterval);
       document.getElementById("mainBuzzerBtn").style.display = "none";
-      document.getElementById("clue1Box").innerText = "🎁 +30 نقطة";
-      document.getElementById("clue2Box").style.display = "block";
-      document.getElementById("clue2Box").innerText = movie.bonusQuestion;
-      document.getElementById("clue3Box").style.display = "none";
+      const c1 = document.getElementById("clue1Box");
+      const c2 = document.getElementById("clue2Box");
+      const c3 = document.getElementById("clue3Box");
+
+      c1.innerText = "🎁 +30 نقطة";
+      c1.classList.add("pushed-up");
+      c2.style.display = "block";
+      c2.classList.remove("pushed-up");
+      c2.innerText = movie.bonusQuestion;
+      c3.style.display = "none";
 
       const optionsBox = document.getElementById("optionsContainer");
       const statusBanner = document.getElementById("buzzerStatusBanner");
@@ -1955,9 +2252,10 @@
         statusBanner.innerText = "⚡ أسرع واحد يختار صح هياخد +30 نقطة بونص!";
       }
 
+      const bonusDuration = diff?.bonusSec || 8;
       localTimerInterval = setInterval(() => {
         const elapsed = Math.floor((Date.now() - state.roundStartTime) / 1000);
-        const rem = Math.max(0, 5 - elapsed);
+        const rem = Math.max(0, bonusDuration - elapsed);
         document.getElementById("roundTimerDisplay").innerText = rem;
         if (rem === 0 && isHost) {
           clearInterval(localTimerInterval);
@@ -1985,11 +2283,11 @@
       }
     };
 
-    function startBuzzerCountdown(state, movie) {
+    function startBuzzerCountdown(state, movie, diff) {
       clearInterval(buzzerTimerInterval);
       const statusBanner = document.getElementById("buzzerStatusBanner");
       const lockTime = state.buzzerLockedAt || Date.now();
-      const maxSeconds = (movie?.surpriseCard === "camouflage") ? 4 : 6;
+      const maxSeconds = (movie?.surpriseCard === "camouflage") ? diff.camoSec : diff.buzzerSec;
 
       buzzerTimerInterval = setInterval(() => {
         const elapsed = Math.floor((Date.now() - lockTime) / 1000);
@@ -2010,16 +2308,15 @@
       }, 250);
     }
 
-    function startSynchronizedTimer(state) {
+    function startSynchronizedTimer(state, diff) {
       clearInterval(localTimerInterval);
       const movie = state.movies?.[state.currentRound];
 
       localTimerInterval = setInterval(() => {
         const elapsed = Math.floor((Date.now() - state.roundStartTime) / 1000);
-        const remaining = Math.max(0, 20 - elapsed);
+        const remaining = Math.max(0, diff.roundSec - elapsed);
         document.getElementById("roundTimerDisplay").innerText = remaining;
 
-        // صوت التكتكة في آخر 5 ثواني وصافرة النهاية
         if (remaining <= 5 && remaining > 0 && lastTickSecond !== remaining) {
           lastTickSecond = remaining;
           SoundEngine.tick();
@@ -2028,7 +2325,6 @@
           SoundEngine.timeUp();
         }
 
-        // كارت روبن هود: يفتح الجرس للمركز الأخير أول 3 ثواني
         if (movie?.surpriseCard === "robinhood" && elapsed < 3 && state.gameMode !== "party") {
           const sorted = Object.entries(state.players || {}).sort((a,b) => a[1].score - b[1].score);
           const lowestUid = sorted[0]?.[0];
@@ -2045,21 +2341,24 @@
         const isSilence = (movie?.surpriseCard === "silence");
         const isBomb = (movie?.surpriseCard === "bomb");
 
-        if (elapsed < 6 || isSilence) {
-          document.getElementById("clue2Box").style.display = "none";
-          document.getElementById("clue3Box").style.display = "none";
+        if (elapsed < diff.clue2At || isSilence) {
+          applyClueStackVisuals(1);
           const pts = isBomb ? 150 : 100 * multiplier;
           document.getElementById("currentPointsBadge").innerText = `جائزة المرحلة: ${pts} نقطة 🔥`;
-        } else if (elapsed < 13) {
-          if (lastClueStage < 2) { lastClueStage = 2; SoundEngine.clue(); }
-          document.getElementById("clue2Box").style.display = "block";
-          document.getElementById("clue3Box").style.display = "none";
+        } else if (elapsed < diff.clue3At) {
+          if (lastClueStage < 2) {
+            lastClueStage = 2;
+            SoundEngine.clue();
+          }
+          applyClueStackVisuals(2);
           const pts = isBomb ? 150 : 70 * multiplier;
           document.getElementById("currentPointsBadge").innerText = `جائزة المرحلة: ${pts} نقطة ⚡`;
         } else {
-          if (lastClueStage < 3) { lastClueStage = 3; SoundEngine.clue(); }
-          document.getElementById("clue2Box").style.display = "block";
-          document.getElementById("clue3Box").style.display = "block";
+          if (lastClueStage < 3) {
+            lastClueStage = 3;
+            SoundEngine.clue();
+          }
+          applyClueStackVisuals(3);
           const pts = isBomb ? 150 : 40 * multiplier;
           document.getElementById("currentPointsBadge").innerText = `جائزة المرحلة: ${pts} نقطة 💡`;
         }
@@ -2101,7 +2400,6 @@
       SoundEngine.clue();
     };
 
-    // اختيار الرهان في الفصل الثالث
     window.selectRoundWager = (amount) => {
       currentRoundWager = amount;
       SoundEngine.pop();
@@ -2131,6 +2429,7 @@
       if (isAdvancingRound || !roomState) return;
       clearInterval(buzzerTimerInterval);
 
+      const diff = getDiffSettings(roomState.difficulty);
       const roundIdx = roomState.currentRound;
       const movie = roomState.movies[roundIdx];
       const lockTime = roomState.buzzerLocked ? (roomState.buzzerLockedAt || Date.now()) : Date.now();
@@ -2138,13 +2437,12 @@
       const isLastRound = (roundIdx === roomState.movies.length - 1);
       const multiplier = isLastRound ? 2 : 1;
 
-      let basePoints = elapsedBeforeBuzzer < 6 ? 100 : (elapsedBeforeBuzzer < 13 ? 70 : 40);
+      let basePoints = elapsedBeforeBuzzer < diff.clue2At ? 100 : (elapsedBeforeBuzzer < diff.clue3At ? 70 : 40);
       let earnedPoints = (movie.surpriseCard === "bomb") ? 150 : (basePoints * multiplier);
       if (currentRoundWager > 0) earnedPoints += currentRoundWager;
 
       let currentScore = roomState.players[currentUser.id]?.score || 0;
 
-      // لو في طور الحفلة (الكل بيجاوب)
       if (roomState.gameMode === "party") {
         partyAnsweredThisRound = true;
         if (chosenOption === movie.answer) {
@@ -2169,7 +2467,6 @@
         return;
       }
 
-      // الطور القياسي
       if (chosenOption === movie.answer) {
         SoundEngine.win();
         isAdvancingRound = true;
@@ -2177,7 +2474,6 @@
           score: currentScore + earnedPoints
         });
 
-        // لو سؤال البونص مفعل، نفتح مرحلة البونص لمدة 5 ثواني قبل الجولة التالية
         if (roomState.enableBonus && movie.bonusOptions && movie.bonusOptions.length >= 2) {
           await update(ref(db, `rooms/${currentRoomCode}`), {
             phase: "bonus",
@@ -2225,7 +2521,6 @@
       if (!roomState) return;
       const targetRound = roomState.currentRound + 1;
 
-      // في طور الإقصاء: كل جولتين يخرج أقل لاعب نقاطاً لو فيه أكتر من لاعبين
       if (roomState.gameMode === "elimination" && targetRound % 2 === 0) {
         const activeEntries = Object.entries(roomState.players || {}).filter(([_, p]) => !p.eliminated);
         if (activeEntries.length > 2) {
@@ -2255,7 +2550,6 @@
       }
     }
 
-    // الريأكشنات اللحظية الطائرة
     window.sendReaction = (emoji) => {
       if (!currentRoomCode) return;
       SoundEngine.pop();
